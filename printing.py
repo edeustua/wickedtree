@@ -53,3 +53,13 @@ def get_utf8_tree(node):
     zipped_lines = zip(left, right)
     lines = [first_line, second_line] + [a + u * ' ' + b for a, b in zipped_lines]
     return lines, n + m + u, max(p, q) + 2, n + u // 2
+
+def print_tree(node, space=0, char=""):
+    pad = 1
+
+    if node is not None:
+        print_tree(node.right, space + pad, "/")
+        print(space *" " + char + "{}".format(str(node.data)))
+        print_tree(node.left, space + pad, "\\")
+
+

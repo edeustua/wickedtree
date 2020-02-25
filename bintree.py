@@ -1,34 +1,74 @@
-import sys
-
 import re
+
 from printing import get_utf8_tree
+
+import pdb
 
 OCCS_FIXED = "ijk"
 UNOCCS_FIXED = "abc"
 OCCS_FREE = "mno"
-UNOCCS_FREE = "efg"
+UNOCCS_FREE = "efgh"
+FULL_FREE = "pqrs"
+PRIORITIES = {
+        OCCS_FIXED + UNOCCS_FIXED: 10,
+        OCCS_FREE + UNOCCS_FREE: 5,
+        FULL_FREE: 1
+        }
 
-class LadderOperator:
+class Symbol:
+
+    cache = {}
+
+    def __new__(cls, label, dummy=True):
+
+        # If fixed symbol, make sure it is not duplicated,
+        # and if it is, return it from the cache
+        if not dummy:
+
+            cache_sym = cls.cache.get(label)
+            if cache_sym:
+                return cache_sym
+            else:
+                sym = super().__new__(cls)
+                cls.cache[label] = sym
+                return sym
+
+        else:
+            sym = super().__new__(cls)
+            return sym
+
+
+    def __init__(self, label, dummy=True):
+        self.label = label
+        self.dummy = dummy
+
+
+
+class ElementaryOperator:
+    """Elementary operator, creation/annihilation operator, in second quantization."""
 
     def __init__(self, symbol, dagger, operator, above=False,
-            below=False):
+            below=False, dummy=True):
 
-        self.symbol = symbol
-        self.dagger = dagger
+        self.symbol = Symbol(symbol, dummy=dummy)
+
         self.operator = operator
+
+        self.dagger = dagger
         self.above = above
         self.below = below
 
     def __str__(self):
         if self.dagger:
-            res = "{}†".format(self.symbol)
+            res = "{}†".format(self.symbol.label)
         else:
-            res = "{}".format(self.symbol)
+            res = "{}".format(self.symbol.label)
 
         return res
 
     def __repr__(self):
         return self.__str__()
+
 
 class KroneckerDelta:
 
@@ -36,9 +76,55 @@ class KroneckerDelta:
         self.a = a
         self.b = b
 
+    def swap(self, ind):
+
+        if ind is self.a or ind is self.b:
+            return self.evaluate().symbol.label
+
+        else:
+            return None
+
+
+    def evaluate(self):
+
+        prior_a = None
+        prior_b = None
+        for key, val in PRIORITIES.items():
+
+            if self.a.symbol.label in key:
+                prior_a = val
+
+            if self.b.symbol.label in key:
+                prior_b = val
+
+        assert isinstance(prior_a, int) and isinstance(prior_b, int), "Priorities not found"
+
+
+        if prior_a == prior_b == 10:
+            #print(self.a, self.b)
+            #print(self.a.symbol, self.b.symbol)
+            #pdb.set_trace()
+            if self.a.symbol is self.b.symbol:
+                return 1
+            else:
+                return 0
+
+        else:
+            if prior_a > prior_b:
+                prior = self.a
+                notprior = self.b
+            else:
+                prior = self.b
+                notprior = self.a
+
+            return prior
+
 
     def __str__(self):
-        res = "δ({}{})".format(self.a.symbol, self.b.symbol)
+        res = "δ({}{})".format(
+                self.a.symbol.label,
+                self.b.symbol.label)
+
         return res
 
     def __repr__(self):
@@ -47,45 +133,47 @@ class KroneckerDelta:
 
 class Operator:
 
-    def __init__(self, symbol, order, indices):
+    def __init__(self, symbol, indices):
         self.symbol = symbol
-        self.order = order
+        #self.order = order
         self.indices = indices
-        self.string = None
+        self.string = []
 
         self._create_string()
 
-    def _create_string(self):
 
+    def _create_string(self):
 
         string = []
         inds = self.indices.split()
 
-        assert len(inds) == 2 * self.order, \
-                "Indices don't match order"
+        #assert len(inds) == 2 * self.order, \
+        #        "Indices don't match order"
 
         for idx in inds:
             above = False
             below = False
 
+            if idx[:1] in OCCS_FIXED + UNOCCS_FIXED:
+                dummy = False
+            else:
+                dummy = True
+
             if idx[0] in OCCS_FREE + OCCS_FIXED:
                 below = True
+
             elif idx[0] in UNOCCS_FREE + UNOCCS_FIXED:
                 above = True
 
             if "†" in idx or ("d" in idx and len(idx) > 1):
-                string.append(LadderOperator(idx[:-1], True, self,
-                    above=above, below=below))
+                string.append(ElementaryOperator(idx[:-1], True, self,
+                    above=above, below=below, dummy=dummy))
             else:
-                string.append(LadderOperator(idx, False, self,
-                    above=above, below=below))
-
+                string.append(ElementaryOperator(idx, False, self,
+                    above=above, below=below, dummy=dummy))
 
 
         self.string = string
-
-
-
 
     def __str__(self):
         op_str = ""
@@ -95,6 +183,7 @@ class Operator:
         string = "{}({})".format(self.symbol, op_str[:-1])
         #string += " at {}".format(hex(id(self)))
         return string
+
 
     def __repr__(self):
         return self.__str__()
@@ -182,30 +271,41 @@ def contract(node):
         return
 
     pos, dag = string.get_dagger()
+
     if pos > 0:
-        left_dag = string[pos-1]
+        left_op = string[pos-1]
 
-        if not (dag.dagger and left_dag.dagger) \
-                and ((dag.above and left_dag.above) or (dag.below and
-                    left_dag.below)) \
-                and dag.operator is not left_dag.operator:
+        # attempt contraction and load it to the left branch
+        if not (dag.dagger and left_op.dagger) \
+                and ((dag.above and left_op.above) or (dag.below and
+                    left_op.below)) \
+                and dag.operator is not left_op.operator:
 
-                    new_string = OperatorString(string[:pos-1] +
-                            string[pos+1:])
+                    # create new operator product
+                    new_string = OperatorString(
+                            string[:pos-1] + string[pos+1:],
+                            sign=string.sign)
+
+                    # copy deltas
                     new_string.deltas = string.deltas[:]
-                    new_string.add_contraction(KroneckerDelta(left_dag, dag))
+
+                    # append new delta
+                    new_string.add_contraction(KroneckerDelta(left_op, dag))
+
                     node.left = Node(new_string)
 
-        new_string = OperatorString(string[:pos-1] + [dag] +
-                [left_dag] + string[pos+1:], sign=-string.sign)
+        # permute operator and load to the right branch
+        new_string = OperatorString(
+                string[:pos-1] + [dag] + [left_op] + string[pos+1:],
+                sign=-string.sign)
+
+        # copy deltas
         new_string.deltas = string.deltas[:]
+
         node.right = Node(new_string)
 
         contract(node.left)
         contract(node.right)
-
-
-
 
 
 
@@ -217,7 +317,7 @@ def collect_fully_contracted(node):
     string = node.data
     if len(string) == 0:
         #return ([[string.sign] + string.deltas] + collect_fully_contracted(node.left) +
-        return ([string.deltas] + collect_fully_contracted(node.left) +
+        return ([(string.sign, string.deltas)] + collect_fully_contracted(node.left) +
                 collect_fully_contracted(node.right))
 
     else:
@@ -226,122 +326,3 @@ def collect_fully_contracted(node):
 
 
 
-def print_tree(node, space=0, char=""):
-    pad = 1
-
-    if node is not None:
-        print_tree(node.right, space + pad, "/")
-        print(space *" " + char + "{}".format(str(node.data)))
-        print_tree(node.left, space + pad, "\\")
-
-
-def vt2_2():
-
-    p = Operator("p", 2, "j b i a")
-    v = Operator("v", 2, "pd q sd r")
-    t = Operator("t", 2, "ed md fd nd")
-
-    v.string[0].above = True
-    v.string[1].below = True
-    v.string[2].below = True
-    v.string[3].above = True
-
-    full_string = OperatorString(p.string + v.string + t.string)
-
-    return p, full_string
-
-def vt2_2p():
-
-    p = Operator("p", 2, "j b i a")
-    v = Operator("v", 2, "pd qd s r")
-    t = Operator("t", 2, "ed md fd nd")
-
-    v.string[0].above = True
-    v.string[1].above = True
-    v.string[2].above = True
-    v.string[3].above = True
-
-    full_string = OperatorString(p.string + v.string + t.string)
-
-    return p, full_string
-
-def zc1():
-    z = Operator("z", 1, "p q")
-    t = Operator("t", 1, "ad id")
-
-    z.string[0].below = True
-    z.string[1].above = True
-
-    full_string = OperatorString(z.string + t.string)
-
-    return None, full_string
-
-def vc1():
-    v = Operator("v", 2, "p q r s")
-    t = Operator("t", 1, "ad id")
-
-    v.string[0].below = True
-    v.string[1].below = True
-    v.string[2].above = True
-    v.string[3].above = True
-
-    full_string = OperatorString(v.string + t.string)
-
-    return None, full_string
-
-# Testing
-# -------
-#p, full_string = vt2_2()
-p, full_string = vt2_2p()
-#p, full_string = vc1()
-#p, full_string = zc1()
-print(full_string)
-
-# Initialize tree
-root_node = Node(full_string)
-
-# Contract string
-contract(root_node)
-
-
-# Pretty Print
-#lines, _, _, _ = get_utf8_tree(root_node)
-#for line in lines:
-#    print(line)
-
-#sys.exit()
-
-full = collect_fully_contracted(root_node)
-print("==================================\n\n")
-print(len(full))
-
-for i, eq in enumerate(full):
-    print(i, eq)
-
-print("\nCollection")
-print("----------")
-counts = {}
-full_set = set()
-if p is not None:
-    for i, eq in enumerate(full):
-        print(i+1, end="")
-        eq_set = []
-        for kro in eq:
-            if kro.a.operator is p \
-                    or kro.b.operator is p:
-                        out = "{}->{}".format(kro.a,
-                                kro.b.operator.symbol)
-                        if counts.get(out) is None:
-                            counts[out] = 0
-                        counts[out] += 1
-                        eq_set.append(out)
-                        print(" ",  out, end="")
-        eq_set = frozenset(eq_set)
-        #print(eq_set)
-        full_set.add(eq_set)
-
-        print()
-        #print(i+1, eq)
-
-    print(counts)
-    print(len(full_set), full_set)
