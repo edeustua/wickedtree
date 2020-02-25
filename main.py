@@ -14,7 +14,7 @@ def vt2_2():
 
     full_string = OperatorString(p.string + v.string + t.string)
 
-    return p, full_string
+    return p, v, t, full_string
 
 def vt2_2p():
 
@@ -29,7 +29,7 @@ def vt2_2p():
 
     full_string = OperatorString(p.string + v.string + t.string)
 
-    return p, full_string
+    return p, v, t, full_string
 
 def zc1():
     z = Operator("z", "p q")
@@ -58,7 +58,8 @@ def vc1():
 # Testing
 # -------
 #p, full_string = vt2_2()
-p, full_string = vt2_2p()
+p, v, t, full_string = vt2_2p()
+#p, v, t, full_string = vt2_2()
 #p, full_string = vc1()
 #p, full_string = zc1()
 print(full_string)
@@ -81,15 +82,30 @@ full = collect_fully_contracted(root_node)
 print("==================================\n\n")
 print(len(full))
 
+print(v)
 for i, eq in enumerate(full):
-    print(i, eq)
+    evs = [kd.evaluate() for kd in eq[1]]
+
+    #print(eq[1])
+    if 0 in evs:
+        continue
+
+    #print(eq[1])
+    mv = v.eval_deltas(eq[1])
+    mt = t.eval_deltas(eq[1])
+    print(eq[0], mv, mt)
+
+    #print(i, eq)
 
 print("\nCollection")
 print("----------")
 counts = {}
 full_set = set()
+new_eqs = {}
 if p is not None:
     for i, eq in enumerate(full):
+
+
         print(i+1, end="")
         eq_set = []
         for kro in eq[1]:
@@ -102,12 +118,32 @@ if p is not None:
                         counts[out] += 1
                         eq_set.append(out)
                         print(" ",  out, end="")
+
         eq_set = frozenset(eq_set)
+        new_eqs[eq_set] = eq
         #print(eq_set)
         full_set.add(eq_set)
 
-        print()
+        print("")
         #print(i+1, eq)
 
     print(counts)
     print(len(full_set), full_set)
+
+print("\nUniques only")
+print("-------------")
+
+for key, eq in new_eqs.items():
+
+    evs = [kd.evaluate() for kd in eq[1]]
+
+    #print(eq[1])
+    if 0 in evs:
+        continue
+
+    #print(eq[1])
+    mv = v.eval_deltas(eq[1])
+    mt = t.eval_deltas(eq[1])
+    print(eq[0], mv, mt)
+
+

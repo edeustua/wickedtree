@@ -1,14 +1,10 @@
-import re
-
-from printing import get_utf8_tree
-
 import pdb
 
-OCCS_FIXED = "ijk"
-UNOCCS_FIXED = "abc"
+OCCS_FIXED = "ijkl"
+UNOCCS_FIXED = "abcd"
 OCCS_FREE = "mno"
 UNOCCS_FREE = "efgh"
-FULL_FREE = "pqrs"
+FULL_FREE = "pqrstu"
 PRIORITIES = {
         OCCS_FIXED + UNOCCS_FIXED: 10,
         OCCS_FREE + UNOCCS_FREE: 5,
@@ -131,49 +127,79 @@ class KroneckerDelta:
         return self.__str__()
 
 
+class MatrixOperator:
+
+    def __init__(self, symbol, lower, upper):
+        self.symbol = symbol
+        self.lower = lower
+        self.upper = upper
+
+
+    def __str__(self):
+        op_str = self.symbol
+        op_str += "_{"
+        op_str += "".join(self.lower)
+        op_str += "}^{"
+        op_str += "".join(self.upper)
+        op_str += "}"
+        return op_str
+
+    def __repr__(self):
+        return self.__str__()
+
+
+
 class Operator:
 
     def __init__(self, symbol, indices):
         self.symbol = symbol
         #self.order = order
         self.indices = indices
-        self.string = []
+        self.string = parse_str(indices, self)
 
-        self._create_string()
+        self.upper = []
+        self.lower = []
 
-
-    def _create_string(self):
-
-        string = []
-        inds = self.indices.split()
-
-        #assert len(inds) == 2 * self.order, \
-        #        "Indices don't match order"
-
-        for idx in inds:
-            above = False
-            below = False
-
-            if idx[:1] in OCCS_FIXED + UNOCCS_FIXED:
-                dummy = False
+        for ind in self.string:
+            if ind.dagger:
+                self.lower.append(ind)
             else:
-                dummy = True
+                self.upper.append(ind)
 
-            if idx[0] in OCCS_FREE + OCCS_FIXED:
-                below = True
+        self.upper = list(reversed(self.upper))
 
-            elif idx[0] in UNOCCS_FREE + UNOCCS_FIXED:
-                above = True
+        if 't' in self.symbol:
 
-            if "†" in idx or ("d" in idx and len(idx) > 1):
-                string.append(ElementaryOperator(idx[:-1], True, self,
-                    above=above, below=below, dummy=dummy))
-            else:
-                string.append(ElementaryOperator(idx, False, self,
-                    above=above, below=below, dummy=dummy))
+            self.upper = []
+            self.lower = []
+
+            for ind in self.string:
+                if ind.above:
+                    self.lower.append(ind)
+                else:
+                    self.upper.append(ind)
 
 
-        self.string = string
+    def eval_deltas(self, deltas):
+
+        new_lower = []
+        new_upper = []
+
+        for ind_l, ind_u in zip(self.lower, self.upper):
+
+            for delta in deltas:
+
+                tmp = delta.swap(ind_l)
+                if tmp is not None:
+                    new_lower.append(tmp)
+
+                tmp = delta.swap(ind_u)
+                if tmp is not None:
+                    new_upper.append(tmp)
+
+        mo = MatrixOperator(self.symbol, new_lower, new_upper)
+        return mo
+
 
     def __str__(self):
         op_str = ""
@@ -181,7 +207,6 @@ class Operator:
             op_str += "{} ".format(op)
 
         string = "{}({})".format(self.symbol, op_str[:-1])
-        #string += " at {}".format(hex(id(self)))
         return string
 
 
@@ -197,13 +222,13 @@ class OperatorString:
         self.sign = sign
         self.deltas = []
 
-    def get_dagger(self):
+    def get_dagger(self, end_pos):
 
         for i, op in enumerate(self.string):
-            if op.dagger:
+            if op.dagger and i >= end_pos:
                 return i, op
 
-        return 0, None
+        return None, None
 
     def append(self, item):
         self.string.append(item)
@@ -261,6 +286,62 @@ class Node:
         print(self.data)
 
 
+def full_wicks(node, end_pos = 0):
+
+    if node is None:
+        return
+
+    string = node.data
+    if len(string) == 0:
+        return
+
+    pos, dag = string.get_dagger(end_pos)
+    if pos is None:
+        return
+
+    if pos == end_pos:
+        end_pos += 1
+        pos, dag = string.get_dagger(end_pos)
+        if pos is None:
+            return
+
+    if pos > end_pos:
+    #if True:
+        left_op = string[pos-1]
+
+        # attempt contraction and load it to the left branch
+        if not (dag.dagger and left_op.dagger) \
+                and ((dag.above and left_op.above) or (dag.below and
+                    left_op.below)) \
+                and dag.operator is not left_op.operator:
+
+                    # create new operator product
+                    new_string = OperatorString(
+                            string[:pos-1] + string[pos+1:],
+                            sign=string.sign)
+
+                    # copy deltas
+                    new_string.deltas = string.deltas[:]
+
+                    # append new delta
+                    new_string.add_contraction(KroneckerDelta(left_op, dag))
+
+                    node.left = Node(new_string)
+
+        # permute operator and load to the right branch
+        new_string = OperatorString(
+                string[:pos-1] + [dag] + [left_op] + string[pos+1:],
+                sign=-string.sign)
+
+        # copy deltas
+        new_string.deltas = string.deltas[:]
+
+        node.right = Node(new_string)
+
+        full_wicks(node.left, end_pos)
+        full_wicks(node.right, end_pos)
+
+
 def contract(node):
 
     if node is None:
@@ -270,7 +351,9 @@ def contract(node):
     if len(string) == 0:
         return
 
-    pos, dag = string.get_dagger()
+    pos, dag = string.get_dagger(0)
+    if pos is None:
+        return
 
     if pos > 0:
         left_op = string[pos-1]
@@ -308,7 +391,6 @@ def contract(node):
         contract(node.right)
 
 
-
 def collect_fully_contracted(node):
 
     if node is None:
@@ -323,6 +405,35 @@ def collect_fully_contracted(node):
     else:
         return (collect_fully_contracted(node.left) +
                 collect_fully_contracted(node.right))
+
+def parse_str(inds, operator=object()):
+
+    string = []
+    inds = inds.split()
+
+    for idx in inds:
+        above = False
+        below = False
+
+        if idx[:1] in OCCS_FIXED + UNOCCS_FIXED:
+            dummy = False
+        else:
+            dummy = True
+
+        if idx[0] in OCCS_FREE + OCCS_FIXED:
+            below = True
+
+        elif idx[0] in UNOCCS_FREE + UNOCCS_FIXED:
+            above = True
+
+        if "†" in idx or ("d" in idx and len(idx) > 1):
+            string.append(ElementaryOperator(idx[:-1], True, operator,
+                above=above, below=below, dummy=dummy))
+        else:
+            string.append(ElementaryOperator(idx, False, operator,
+                above=above, below=below, dummy=dummy))
+
+    return string
 
 
 
