@@ -29,6 +29,8 @@ def gen_fermi_threebody():
 
     ops = [Operator("h3(uuouuo)", "pd qd r u t sd")]
     set_fermi("uuouuo", ops[0])
+    #ops = [Operator("h3(uuouuo)", "pd qd r u t sd", typs="uuouuo")]
+    #set_fermi("uuouuo", ops[0])
 
     return ops
 
@@ -75,12 +77,12 @@ def gen_fermi_twobody(label):
 
 if __name__ == "__main__":
 
-    ops = gen_fermi_onebody()
+    #ops = gen_fermi_onebody()
     #ops = gen_fermi_twobody()
-    #ops = gen_fermi_threebody()
+    ops = gen_fermi_threebody()
 
     bra = Operator("bra", "c b a k j i")
-    ket = Operator("ket", "id jd kd ad bd dd")
+    ket = Operator("ket", "id jd kd ad bd cd")
 
 
     #sys.exit()
@@ -94,15 +96,16 @@ if __name__ == "__main__":
 
         for eq in full:
 
-            evs = [kd.evaluate() for kd in eq[1]]
+
+            evs = [kd.evaluate() for kd in eq.deltas]
 
             #print(eq[1])
             if 0 in evs:
                 continue
 
             #print(eq[1])
-            m = op.eval_deltas(eq[1])
-            print(eq[0], m)
+            m = op.eval_deltas(eq.deltas)
+            print(eq.sign, m)
 
         print('--------------------------------')
 

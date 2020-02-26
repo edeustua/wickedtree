@@ -101,11 +101,9 @@ if __name__ == "__main__":
 
             evs = [kd.evaluate() for kd in eq[1]]
 
-            #print(eq[1])
             if 0 in evs:
                 continue
 
-            #print(eq[1])
             m = op.eval_deltas(eq[1])
             print(eq[0], m)
 

@@ -48,8 +48,14 @@ hs = [
         Operator("h1(uu)", "pd q", typs='uu'),
         Operator("h2(oooo)", "p q sd rd", typs='oooo',
             weight=Fraction(1,2)),
-        Operator("h2(uouo)", "pd q s rd", typs='uouo',
+        #Operator("h2(ouou)", "p qd sd r", typs='ouou',
+        #    weight=1),
+        Operator("h2(ouuo)", "p qd s rd", typs='ouuo',
             weight=1),
+        #Operator("h2(uouo)", "pd q s rd", typs='uouo',
+        #    weight=1),
+        #Operator("h2(uoou)", "pd q sd r", typs='uoou',
+        #    weight=1),
         Operator("h2(uuuu)", "pd qd s r", typs='uuuu',
             weight=Fraction(1,2)),
         Operator("h3(uoouoo)", "pd q r u td sd", typs='uoouoo',
@@ -81,6 +87,8 @@ def run(h):
     #for line in lines:
     #    print(line)
 
+    #print(root_node.right.right.right.right.left.data)
+
     full = collect_fully_contracted(root_node)
 
     #print(full)
@@ -96,7 +104,8 @@ def run(h):
         mv = h.eval_deltas(eq.deltas)
         #equiv = new_eqs_weights[key]
         #print(equiv)
-        print(eq.sign * eq.weight, mv)
+        #print(eq.deltas)
+        #print(eq.sign * eq.weight, mv)
 
         new_eqs.append((eq.sign * eq.weight, mv))
         new_weights[mv] = eq.sign * eq.weight
@@ -110,6 +119,6 @@ def run(h):
     print("==================================\n")
 
 
-run(ht)
-#for h in hs:
-#    run(h)
+#run(hs[0])
+for h in hs:
+    run(h)

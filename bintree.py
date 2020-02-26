@@ -82,7 +82,7 @@ def contract(a, b):
             )
 
     res = res and (a.operator is not b.operator)
-    res = res and (a.spin == b.spin)
+    #res = res and (a.spin == b.spin)
 
     return res
 
@@ -201,40 +201,45 @@ class Operator:
         self.upper = []
         self.lower = []
 
-        for ind in self.string:
 
-            if not (ind.above or ind.below):
-                if ind.dagger:
+        #if not (ind.above or ind.below):
+
+        #    for ind in self.string:
+        #        if ind.dagger:
+        #            self.lower.append(ind)
+        #        else:
+        #            self.upper.append(ind)
+
+
+            # This might be wrong
+        if 't' not in self.symbol:
+            self.lower = self.string[:len(self.string)//2]
+            self.upper = self.string[len(self.string)//2:]
+
+            #    if ind.dagger:
+            #        if ind.above:
+            #            self.lower.append(ind)
+            #        elif ind.below:
+            #            self.upper.append(ind)
+            #    else:
+            #        if ind.above:
+            #            self.upper.append(ind)
+            #        elif ind.below:
+            #            self.lower.append(ind)
+
+            ##    self.upper = list(reversed(self.upper))
+
+        elif 't' in self.symbol:
+            for ind in self.string:
+                if ind.above:
                     self.lower.append(ind)
                 else:
                     self.upper.append(ind)
+        else:
+            raise TypeError("operator is not clear for indexing")
 
-                self.upper = list(reversed(self.upper))
-
-            elif 't' not in self.symbol:
-                if ind.dagger:
-                    if ind.above:
-                        self.lower.append(ind)
-                    elif ind.below:
-                        self.upper.append(ind)
-                else:
-                    if ind.above:
-                        self.upper.append(ind)
-                    elif ind.below:
-                        self.lower.append(ind)
-
-                self.upper = list(reversed(self.upper))
-
-            elif 't' in self.symbol:
-
-                for ind in self.string:
-                    if ind.above:
-                        self.lower.append(ind)
-                    else:
-                        self.upper.append(ind)
-            else:
-                raise TypeError("operator is not clear for indexing")
-
+        if 't' not in self.symbol:
+            self.upper = list(reversed(self.upper))
 
 
         self.op_string = OperatorString(self.string,
