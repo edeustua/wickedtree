@@ -3,8 +3,6 @@ import itertools as it
 from bintree import Operator, OperatorString, \
         Node, wicks, collect_fully_contracted
 
-from fractions import Fraction
-
 import sys
 
 
@@ -19,12 +17,11 @@ def set_fermi(typs, op):
 
 def gen_fermi_onebody(label):
 
-    ops = [
-            Operator(label+"(oo)", "p qd", typs="oo"),
-            Operator(label+"(ou)", "p q", typs="ou"),
-            Operator(label+"(uo)", "pd qd", typs="uo"),
-            Operator(label+"(uu)", "pd q", typs="uu")
-            ]
+    ops = [Operator(label+"(oo)", "p qd"),
+            Operator(label+"(uu)", "pd q")]
+
+    set_fermi("oo", ops[0])
+    set_fermi("uu", ops[1])
 
     return ops
 
@@ -40,38 +37,36 @@ def gen_fermi_threebody():
 def gen_fermi_twobody(label):
 
     string = "pqsr"
+    c1 = it.permutations("ou")
+    c2 = it.permutations("ou", r=2)
 
-    ops = []
+    ops = [Operator(label+"(oooo)", "p q sd rd")]
+    set_fermi("oooo", ops[0])
 
-    for i in range(4+1):
-        for j in it.combinations(range(4), i):
-            typs = ['o'] * 4
-            for indx in j:
-                typs[indx] = 'u'
+    for i in it.product(c1, c2):
+        s = i[0] + i[1]
 
-            typs = "".join(typs)
+        out = []
+        for ind, typ in zip(string, s):
+            if typ == 'o':
+                if ind in "pq":
+                    out.append(ind)
+                elif ind in "sr":
+                    out.append(ind + "d")
 
-            out = []
-            for ind, typ in zip(string, typs):
+            elif typ == 'u':
+                if ind in "pq":
+                    out.append(ind + "d")
+                elif ind in "sr":
+                    out.append(ind)
 
-                if typ == 'o':
-                    if ind in "pq":
-                        out.append(ind)
-                    elif ind in "sr":
-                        out.append(ind + "d")
+        op = Operator(label+"("+"".join(s) + ")", " ".join(out))
+        set_fermi(s, op)
+        ops.append(op)
 
-                elif typ == 'u':
-                    if ind in "pq":
-                        out.append(ind + "d")
-                    elif ind in "sr":
-                        out.append(ind)
-
-
-            op = Operator(label+f"({typs})", " ".join(out),
-                    typs=typs,
-                    weight=Fraction(1,2))
-            set_fermi(typs, op)
-            ops.append(op)
+    op = Operator(label+"(uuuu)", "pd qd s r")
+    set_fermi("uuuu", op)
+    ops.append(op)
 
     return ops
 

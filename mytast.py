@@ -1,77 +1,115 @@
 import sys
 
 from bintree import Operator, OperatorString, \
-        Node, contract, collect_fully_contracted, \
+        Node, wicks, collect_fully_contracted, \
         Symbol
 
 from printing import get_utf8_tree
 
+from fractions import Fraction
 
-#bra = Operator("bra", "a k j i")
-#h1 = Operator("h1", "pd q")
-#ket = Operator("ket", "id jd kd ad")
-#
-#h1.string[0].below = True
-#h1.string[1].below = True
-
-bra = Operator("bra", "a")
-h = Operator("h2", "pd q")
-ket = Operator("ket", "ad")
-
-h.string[0].above = True
-h.string[1].above = True
-#h.string[2].below = True
-#h.string[3].above = True
-
-#bra = Operator("bra", 1, "a b")
-#h1 = Operator("h1", 1, "pd q")
-#ket = Operator("ket", 1, "ad bd")
-
-#h1.string[0].above = True
-#h1.string[1].above = True
-
-fs = OperatorString(bra.string + h.string + ket.string)
-print(fs)
-print("---------------")
+import math
 
 
-root_node = Node(fs)
-contract(root_node)
+def find_equiv(terms):
 
-# Pretty Print
-lines, _, _, _ = get_utf8_tree(root_node)
-for line in lines:
-    print(line)
+    tmp_terms = terms.copy()
+    new_terms = terms.copy()
 
-full = collect_fully_contracted(root_node)
-print("==================================\n\n")
+    uniques = []
+    while True:
 
-#print(full)
-#sys.exit()
-for i, eq in enumerate(full):
-    evs = [x.evaluate() for x in eq[1]]
-    #print(eq, evs)
-    if 0 in evs:
-        continue
+        pivot_l = set(tmp_terms[0].lower)
+        pivot_u = set(tmp_terms[0].upper)
 
-    m = h.eval_deltas(eq[1])
-    print(m)
+        cnt = 0
+        for term in tmp_terms:
+            if pivot_l == set(term.lower) and \
+                    pivot_u == set(term.upper):
+                new_terms.remove(term)
+                cnt += 1
 
-#    newinds = []
-#    for ind in h.string:
-#        for kd in eq[1]:
-#            ni = kd.swap(ind)
-#            if ni is not None:
-#                newinds.append(ni)
-#
-#    mid = int(len(newinds) / 2)
-#    newinds = (
-#            newinds[:mid] +
-#            list(reversed(newinds[mid:]))
-#                )
-#    print(eq[0], "h1(",newinds,")")
+        uniques.append((cnt, tmp_terms[0]))
+
+
+        if len(new_terms) == 0:
+            break
+
+        tmp_terms = new_terms[:]
+
+    return uniques
 
 
 
-print(bra, h, ket)
 
+
+hs = [
+        Operator("h1(oo)", "p qd", typs='oo'),
+        Operator("h1(uu)", "pd q", typs='uu'),
+        Operator("h2(oooo)", "p q sd rd", typs='oooo',
+            weight=Fraction(1,2)),
+        Operator("h2(uouo)", "pd q s rd", typs='uouo',
+            weight=1),
+        Operator("h2(uuuu)", "pd qd s r", typs='uuuu',
+            weight=Fraction(1,2)),
+        Operator("h3(uoouoo)", "pd q r u td sd", typs='uoouoo',
+            weight=Fraction(1,2)),
+        Operator("h3(uuouuo)", "pd qd r u t sd", typs='uuouuo',
+            weight=Fraction(1,2)),
+        ]
+
+ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
+        weight=Fraction(1,2))
+
+
+
+
+def run(h):
+    print("==================================")
+    print(h)
+
+    bra = Operator("bra", "c b a k j i")
+    ket = Operator("ket", "id jd kd ad bd cd")
+
+    fs = OperatorString(bra * h * ket)
+
+    root_node = Node(fs)
+    wicks(root_node)
+
+    # Pretty Print
+    #lines, _, _, _ = get_utf8_tree(root_node)
+    #for line in lines:
+    #    print(line)
+
+    full = collect_fully_contracted(root_node)
+
+    #print(full)
+    #sys.exit()
+    new_eqs = []
+    new_weights = {}
+    for i, eq in enumerate(full):
+        evs = [x.evaluate() for x in eq.deltas]
+
+        if 0 in evs:
+            continue
+
+        mv = h.eval_deltas(eq.deltas)
+        #equiv = new_eqs_weights[key]
+        #print(equiv)
+        print(eq.sign * eq.weight, mv)
+
+        new_eqs.append((eq.sign * eq.weight, mv))
+        new_weights[mv] = eq.sign * eq.weight
+
+    print('----------------')
+    terms = list(zip(*new_eqs))
+    uniques = find_equiv(list(terms[1]))
+    for cnt, term in uniques:
+        print(int(math.sqrt(cnt)) * new_weights[term], term)
+
+    print("==================================\n")
+
+
+run(ht)
+#for h in hs:
+#    run(h)

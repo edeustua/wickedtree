@@ -1,33 +1,35 @@
 from bintree import Operator, OperatorString, \
-        Node, contract, collect_fully_contracted
+        Node, wicks, collect_fully_contracted, \
+        collect_unique
+
+from fractions import Fraction
 
 def vt2_2():
 
     p = Operator("p", "j b i a")
-    v = Operator("v", "pd q sd r")
-    t = Operator("t", "ed md fd nd")
+    v = Operator("v", "pd qd s r",
+            typs="uoou",
+            weight=Fraction(1,2))
+    t = Operator("t", "ed md fd nd", weight=Fraction(1,2))
 
-    v.string[0].above = True
-    v.string[1].below = True
-    v.string[2].below = True
-    v.string[3].above = True
-
-    full_string = OperatorString(p.string + v.string + t.string)
+    full_string = OperatorString(p.string + v.string + t.string,
+            weight=Fraction(1/4))
 
     return p, v, t, full_string
 
 def vt2_2p():
 
     p = Operator("p", "j b i a")
-    v = Operator("v", "pd qd s r")
-    t = Operator("t", "ed md fd nd")
+    v = Operator("v", "pd qd s r", weight=Fraction(1,2))
+    t = Operator("t", "ed md fd nd", weight=Fraction(1,2))
 
     v.string[0].above = True
     v.string[1].above = True
     v.string[2].above = True
     v.string[3].above = True
 
-    full_string = OperatorString(p.string + v.string + t.string)
+    full_string = OperatorString(p.string + v.string + t.string,
+            weight=Fraction(1/4))
 
     return p, v, t, full_string
 
@@ -57,18 +59,20 @@ def vc1():
 
 # Testing
 # -------
-#p, full_string = vt2_2()
-p, v, t, full_string = vt2_2p()
+p, v, t, full_string = vt2_2()
+#p, v, t, full_string = vt2_2p()
 #p, v, t, full_string = vt2_2()
 #p, full_string = vc1()
 #p, full_string = zc1()
 print(full_string)
 
 # Initialize tree
-root_node = Node(full_string)
+tree = Node(full_string)
 
 # Contract string
-contract(root_node)
+wicks(tree)
+
+full = collect_fully_contracted(tree)
 
 
 # Pretty Print
@@ -78,72 +82,42 @@ contract(root_node)
 
 #sys.exit()
 
-full = collect_fully_contracted(root_node)
 print("==================================\n\n")
-print(len(full))
 
 print(v)
 for i, eq in enumerate(full):
-    evs = [kd.evaluate() for kd in eq[1]]
+    evs = [kd.evaluate() for kd in eq.deltas]
 
     #print(eq[1])
     if 0 in evs:
         continue
 
     #print(eq[1])
-    mv = v.eval_deltas(eq[1])
-    mt = t.eval_deltas(eq[1])
-    print(eq[0], mv, mt)
+    mv = v.eval_deltas(eq.deltas)
+    mt = t.eval_deltas(eq.deltas)
+    print(eq.sign * eq.weight, mv, mt)
 
     #print(i, eq)
-
-print("\nCollection")
-print("----------")
-counts = {}
-full_set = set()
-new_eqs = {}
-if p is not None:
-    for i, eq in enumerate(full):
-
-
-        print(i+1, end="")
-        eq_set = []
-        for kro in eq[1]:
-            if kro.a.operator is p \
-                    or kro.b.operator is p:
-                        out = "{}->{}".format(kro.a,
-                                kro.b.operator.symbol)
-                        if counts.get(out) is None:
-                            counts[out] = 0
-                        counts[out] += 1
-                        eq_set.append(out)
-                        print(" ",  out, end="")
-
-        eq_set = frozenset(eq_set)
-        new_eqs[eq_set] = eq
-        #print(eq_set)
-        full_set.add(eq_set)
-
-        print("")
-        #print(i+1, eq)
-
-    print(counts)
-    print(len(full_set), full_set)
 
 print("\nUniques only")
 print("-------------")
 
-for key, eq in new_eqs.items():
+new_eqs, new_eqs_weights = collect_unique(p, full)
+for key, eqs in new_eqs.items():
 
-    evs = [kd.evaluate() for kd in eq[1]]
+    eq = eqs[0]
+
+    evs = [kd.evaluate() for kd in eq.deltas]
 
     #print(eq[1])
     if 0 in evs:
         continue
 
     #print(eq[1])
-    mv = v.eval_deltas(eq[1])
-    mt = t.eval_deltas(eq[1])
-    print(eq[0], mv, mt)
+    mv = v.eval_deltas(eq.deltas)
+    mt = t.eval_deltas(eq.deltas)
+    equiv = new_eqs_weights[key]
+    print(equiv)
+    print(eq.sign * eq.weight * equiv, mv, mt)
 
 

@@ -1,5 +1,5 @@
 from bintree import Operator, OperatorString, \
-        Node, contract, collect_fully_contracted
+        Node, wicks, collect_fully_contracted
 
 def vt2_2p():
 
@@ -24,7 +24,7 @@ def test_vt2_2p():
     root_node = Node(full_string)
 
     # Contract string
-    contract(root_node)
+    wicks(root_node)
 
     #
     full = collect_fully_contracted(root_node)
@@ -40,6 +40,10 @@ def test_vt2_2p():
              "(-1, [δ(bp), δ(aq), δ(se), δ(jm), δ(rf), δ(in)])"
             ]
 
+    assert len(check) == len(full), "Not same length"
+
     for eq_c, eq in zip(check, full):
         assert eq_c == str(eq)
+
+#test_vt2_2p()
 

@@ -1,4 +1,7 @@
 import pdb
+from fractions import Fraction
+
+from printing import get_utf8_tree
 
 OCCS_FIXED = "ijkl"
 UNOCCS_FIXED = "abcd"
@@ -43,14 +46,18 @@ class Symbol:
 class ElementaryOperator:
     """Elementary operator, creation/annihilation operator, in second quantization."""
 
-    def __init__(self, symbol, dagger, operator, above=False,
-            below=False, dummy=True):
+    def __init__(self, symbol, dagger, operator,
+            spin='a',
+            above=False,
+            below=False,
+            dummy=True):
 
         self.symbol = Symbol(symbol, dummy=dummy)
 
         self.operator = operator
 
         self.dagger = dagger
+        self.spin = spin
         self.above = above
         self.below = below
 
@@ -66,6 +73,20 @@ class ElementaryOperator:
         return self.__str__()
 
 
+def contract(a, b):
+
+    res = not (a.dagger and b.dagger)
+    res = res and (
+            (a.above and b.above) or
+            (a.below and b.below)
+            )
+
+    res = res and (a.operator is not b.operator)
+    res = res and (a.spin == b.spin)
+
+    return res
+
+
 class KroneckerDelta:
 
     def __init__(self, a, b):
@@ -75,9 +96,11 @@ class KroneckerDelta:
     def swap(self, ind):
 
         if ind is self.a or ind is self.b:
+
             return self.evaluate().symbol.label
 
         else:
+
             return None
 
 
@@ -104,6 +127,13 @@ class KroneckerDelta:
                 return 1
             else:
                 return 0
+        elif prior_a == prior_b == 5:
+            if "F" in self.a.operator.symbol or \
+                    "V" in self.a.operator.symbol:
+                return self.a
+
+            else:
+                return self.b
 
         else:
             if prior_a > prior_b:
@@ -151,33 +181,79 @@ class MatrixOperator:
 
 class Operator:
 
-    def __init__(self, symbol, indices):
+    def __init__(self, symbol, indices, typs=None, weight=1):
+
         self.symbol = symbol
-        #self.order = order
-        self.indices = indices
-        self.string = parse_str(indices, self)
+        self.weight = weight
+        self.typs = typs
+
+        if isinstance(indices, str):
+            self.indices = indices
+            self.string = parse_str(indices, self)
+        else:
+            raise TypeError("indices must be string")
+        #elif isinstance(indices, OperatorString):
+        #    self.string
+
+        if self.typs:
+            self.set_fermi()
 
         self.upper = []
         self.lower = []
 
         for ind in self.string:
-            if ind.dagger:
-                self.lower.append(ind)
-            else:
-                self.upper.append(ind)
 
-        self.upper = list(reversed(self.upper))
-
-        if 't' in self.symbol:
-
-            self.upper = []
-            self.lower = []
-
-            for ind in self.string:
-                if ind.above:
+            if not (ind.above or ind.below):
+                if ind.dagger:
                     self.lower.append(ind)
                 else:
                     self.upper.append(ind)
+
+                self.upper = list(reversed(self.upper))
+
+            elif 't' not in self.symbol:
+                if ind.dagger:
+                    if ind.above:
+                        self.lower.append(ind)
+                    elif ind.below:
+                        self.upper.append(ind)
+                else:
+                    if ind.above:
+                        self.upper.append(ind)
+                    elif ind.below:
+                        self.lower.append(ind)
+
+                self.upper = list(reversed(self.upper))
+
+            elif 't' in self.symbol:
+
+                for ind in self.string:
+                    if ind.above:
+                        self.lower.append(ind)
+                    else:
+                        self.upper.append(ind)
+            else:
+                raise TypeError("operator is not clear for indexing")
+
+
+
+        self.op_string = OperatorString(self.string,
+                weight=self.weight,
+                sign=1)
+
+    def set_fermi(self):
+
+        assert len(self.string) == len(self.typs), \
+                "Typs and string lenghts don't match"
+
+        for i, typ in enumerate(self.typs):
+            if typ == "o":
+                self.string[i].below = True
+            elif typ == "u":
+                self.string[i].above = True
+            elif typ == "f":
+                self.string[i].above = True
+                self.string[i].below = True
 
 
     def eval_deltas(self, deltas):
@@ -201,6 +277,16 @@ class Operator:
         return mo
 
 
+    def __mul__(self, other):
+        res = self.op_string * other
+        return res
+
+    def __rmul__(self, other):
+        res = other * self.op_string
+        return res
+
+
+
     def __str__(self):
         op_str = ""
         for op in self.string:
@@ -216,11 +302,17 @@ class Operator:
 
 class OperatorString:
 
-    def __init__(self, string, sign=1):
+    def __init__(self, input_string, weight=1, sign=1):
 
-        self.string = string
-        self.sign = sign
-        self.deltas = []
+        if isinstance(input_string, list):
+            self.string = input_string
+            self.sign = sign
+            self.weight = weight
+            self.deltas = []
+
+        elif isinstance(input_string, OperatorString):
+            self.copy_from(input_string)
+
 
     def get_dagger(self, end_pos):
 
@@ -236,6 +328,52 @@ class OperatorString:
     def add_contraction(self, delta):
         self.deltas.append(delta)
 
+
+    def __mul__(self, other):
+        res = OperatorString(self)
+        if isinstance(other, int):
+            res.weight *= abs(other)
+            res.sign = res.sign if other >= 0 else -res.sign
+
+        elif isinstance(other, Fraction):
+            res.weight *= other
+            res.sign = res.sign if other >= 0 else -res.sign
+
+        elif isinstance(other, OperatorString):
+            res.string = res.string + other.string
+            res.weight *= other.weight
+            res.sign = res.sign if other.sign >= 0 else -other.sign
+
+        else:
+            return NotImplemented
+
+        return res
+
+    def __rmul__(self, other):
+        res = OperatorString(self)
+        if isinstance(other, int):
+            res.weight *= abs(other)
+            res.sign = res.sign if other >= 0 else -res.sign
+
+        elif isinstance(other, Fraction):
+            res.weight *= other
+            res.sign = res.sign if other >= 0 else -res.sign
+
+        elif isinstance(other, OperatorString):
+            res.string = other.string + res.string
+            res.weight *= other.weight
+            res.sign = res.sign if other.sign >= 0 else -other.sign
+
+        return res
+
+
+    def copy_from(self, other):
+        self.string = other.string.copy()
+        self.sign = other.sign
+        self.weight = other.weight
+        self.deltas = other.deltas.copy()
+
+
     def __len__(self):
         return len(self.string)
 
@@ -244,11 +382,11 @@ class OperatorString:
 
 
     def __str__(self):
-        out = str(self.string) + " " + str(self.deltas)
-        if self.sign == 1:
-            return "+" + out
-        else:
-            return "-" + out
+        out = "+" if self.sign >= 0 else "-"
+        out += " " + str(self.weight) + " "
+        out += "ops" + str(self.string) + " " \
+                + "deltas" + str(self.deltas)
+        return out
 
 
     def __repr__(self):
@@ -264,26 +402,10 @@ class Node:
         self.right = None
         self.data = data
 
-#    def add(self, data):
-#
-#        cur = self
-#
-#        while cur is not None:
-#
-#            if data < cur.data:
-#                if cur.left is None:
-#                    cur.left = Node(data)
-#                    return
-#                cur = cur.left
-#            else:
-#                if cur.right is None:
-#                    cur.right = Node(data)
-#                    return
-#                cur = cur.right
-
-
     def print(self):
-        print(self.data)
+        lines, _, _, _ = get_utf8_tree(self)
+        for line in lines:
+            print(line)
 
 
 def full_wicks(node, end_pos = 0):
@@ -342,7 +464,7 @@ def full_wicks(node, end_pos = 0):
         full_wicks(node.right, end_pos)
 
 
-def contract(node):
+def wicks(node):
 
     if node is None:
         return
@@ -359,15 +481,13 @@ def contract(node):
         left_op = string[pos-1]
 
         # attempt contraction and load it to the left branch
-        if not (dag.dagger and left_op.dagger) \
-                and ((dag.above and left_op.above) or (dag.below and
-                    left_op.below)) \
-                and dag.operator is not left_op.operator:
+        if contract(dag, left_op):
 
                     # create new operator product
                     new_string = OperatorString(
                             string[:pos-1] + string[pos+1:],
-                            sign=string.sign)
+                            sign=string.sign,
+                            weight=string.weight)
 
                     # copy deltas
                     new_string.deltas = string.deltas[:]
@@ -380,15 +500,17 @@ def contract(node):
         # permute operator and load to the right branch
         new_string = OperatorString(
                 string[:pos-1] + [dag] + [left_op] + string[pos+1:],
-                sign=-string.sign)
+                sign=-string.sign,
+                weight=string.weight)
 
         # copy deltas
         new_string.deltas = string.deltas[:]
 
         node.right = Node(new_string)
 
-        contract(node.left)
-        contract(node.right)
+        wicks(node.left)
+        wicks(node.right)
+
 
 
 def collect_fully_contracted(node):
@@ -399,12 +521,65 @@ def collect_fully_contracted(node):
     string = node.data
     if len(string) == 0:
         #return ([[string.sign] + string.deltas] + collect_fully_contracted(node.left) +
-        return ([(string.sign, string.deltas)] + collect_fully_contracted(node.left) +
+        return ([string] + collect_fully_contracted(node.left) +
                 collect_fully_contracted(node.right))
 
     else:
         return (collect_fully_contracted(node.left) +
                 collect_fully_contracted(node.right))
+
+cfc = collect_fully_contracted
+
+
+def collect_unique(p, terms):
+
+    uniq_count = {}
+    uniq_set = {}
+
+    for term in terms:
+
+        uniq_term_set = []
+        for delta in term.deltas:
+            if delta.a.operator is p or delta.b.operator is p:
+
+                # do this to make the various ou instances of the
+                # operators equivalent
+                target_op = delta.b.operator.symbol
+                if "V" in target_op or "F" in target_op:
+                    uinds = target_op.count('u')
+                    if 1 < uinds < 4 and target_op[0:1] == "V":
+                        target_op = f"V({uinds})"
+                    elif 1 < uinds < 2 and target_op[0:1] == "F":
+                        target_op = f"F({uinds})"
+                    else:
+                        target_op = target_op[0:1]
+
+
+                line_str = "{}->{}".format(
+                        delta.a,
+                        target_op
+                        )
+
+                uniq_count.setdefault(line_str, 0)
+                uniq_count[line_str] += 1
+
+                uniq_term_set.append(line_str)
+
+        uniq_term_set = frozenset(uniq_term_set)
+
+        uniq_set.setdefault(uniq_term_set, [])
+        uniq_set[uniq_term_set].append(term)
+
+    uniq_set_weights = {}
+    for key, val in uniq_set.items():
+        uniq_set_weights[key] = len(terms) / len(val)
+
+    #print(len(terms))
+    #print(uniq_set)
+
+    return uniq_set, uniq_set_weights
+
+
 
 def parse_str(inds, operator=object()):
 
