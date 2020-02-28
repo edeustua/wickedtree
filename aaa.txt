@@ -1,0 +1,74 @@
+==================================
+h1a(oo)(p q†)
+----------------
+-1 h1a(oo)_{i}^{i}
+-1 h1a(oo)_{j}^{j}
+-1 h1a(oo)_{k}^{k}
+==================================
+
+==================================
+h1a(uu)(p† q)
+----------------
+1 h1a(uu)_{a}^{a}
+1 h1a(uu)_{b}^{b}
+1 h1a(uu)_{c}^{c}
+==================================
+
+==================================
+h2a(oooo)(p q s† r†)
+----------------
+1 h2a(oooo)_{ji}^{ji}
+1 h2a(oooo)_{ki}^{ki}
+1 h2a(oooo)_{kj}^{kj}
+==================================
+
+==================================
+h2a(ouou)(p q† s† r)
+----------------
+1 h2a(ouou)_{ia}^{ai}
+1 h2a(ouou)_{ja}^{aj}
+1 h2a(ouou)_{ka}^{ak}
+1 h2a(ouou)_{ib}^{bi}
+1 h2a(ouou)_{jb}^{bj}
+1 h2a(ouou)_{kb}^{bk}
+1 h2a(ouou)_{ic}^{ci}
+1 h2a(ouou)_{jc}^{cj}
+1 h2a(ouou)_{kc}^{ck}
+==================================
+
+==================================
+h2a(uuuu)(p† q† s r)
+----------------
+1 h2a(uuuu)_{ab}^{ab}
+1 h2a(uuuu)_{ac}^{ac}
+1 h2a(uuuu)_{bc}^{bc}
+==================================
+
+==================================
+h3a(uoouoo)(p† q r u t† s†)
+----------------
+1 h3a(uoouoo)_{aji}^{jia}
+1 h3a(uoouoo)_{aki}^{kia}
+1 h3a(uoouoo)_{akj}^{kja}
+1 h3a(uoouoo)_{bji}^{jib}
+1 h3a(uoouoo)_{bki}^{kib}
+1 h3a(uoouoo)_{bkj}^{kjb}
+1 h3a(uoouoo)_{cji}^{jic}
+1 h3a(uoouoo)_{cki}^{kic}
+1 h3a(uoouoo)_{ckj}^{kjc}
+==================================
+
+==================================
+h3a(uuouuo)(p† q† r u t s†)
+----------------
+-1 h3a(uuouuo)_{abi}^{iab}
+-1 h3a(uuouuo)_{abj}^{jab}
+-1 h3a(uuouuo)_{abk}^{kab}
+-1 h3a(uuouuo)_{aci}^{iac}
+-1 h3a(uuouuo)_{acj}^{jac}
+-1 h3a(uuouuo)_{ack}^{kac}
+-1 h3a(uuouuo)_{bci}^{ibc}
+-1 h3a(uuouuo)_{bcj}^{jbc}
+-1 h3a(uuouuo)_{bck}^{kbc}
+==================================
+

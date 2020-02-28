@@ -1,0 +1,74 @@
+==================================
+h1b(oo)(p q†)
+----------------
+-1 h1b(oo)_{\tilde{i}}^{\tilde{i}}
+-1 h1b(oo)_{\tilde{j}}^{\tilde{j}}
+-1 h1b(oo)_{\tilde{k}}^{\tilde{k}}
+==================================
+
+==================================
+h1b(uu)(p† q)
+----------------
+1 h1b(uu)_{\tilde{a}}^{\tilde{a}}
+1 h1b(uu)_{\tilde{b}}^{\tilde{b}}
+1 h1b(uu)_{\tilde{c}}^{\tilde{c}}
+==================================
+
+==================================
+h2c(oooo)(p q s† r†)
+----------------
+1 h2c(oooo)_{\tilde{j}\tilde{i}}^{\tilde{j}\tilde{i}}
+1 h2c(oooo)_{\tilde{k}\tilde{i}}^{\tilde{k}\tilde{i}}
+1 h2c(oooo)_{\tilde{k}\tilde{j}}^{\tilde{k}\tilde{j}}
+==================================
+
+==================================
+h2c(ouou)(p q† s† r)
+----------------
+1 h2c(ouou)_{\tilde{i}\tilde{a}}^{\tilde{a}\tilde{i}}
+1 h2c(ouou)_{\tilde{j}\tilde{a}}^{\tilde{a}\tilde{j}}
+1 h2c(ouou)_{\tilde{k}\tilde{a}}^{\tilde{a}\tilde{k}}
+1 h2c(ouou)_{\tilde{i}\tilde{b}}^{\tilde{b}\tilde{i}}
+1 h2c(ouou)_{\tilde{j}\tilde{b}}^{\tilde{b}\tilde{j}}
+1 h2c(ouou)_{\tilde{k}\tilde{b}}^{\tilde{b}\tilde{k}}
+1 h2c(ouou)_{\tilde{i}\tilde{c}}^{\tilde{c}\tilde{i}}
+1 h2c(ouou)_{\tilde{j}\tilde{c}}^{\tilde{c}\tilde{j}}
+1 h2c(ouou)_{\tilde{k}\tilde{c}}^{\tilde{c}\tilde{k}}
+==================================
+
+==================================
+h2c(uuuu)(p† q† s r)
+----------------
+1 h2c(uuuu)_{\tilde{a}\tilde{b}}^{\tilde{a}\tilde{b}}
+1 h2c(uuuu)_{\tilde{a}\tilde{c}}^{\tilde{a}\tilde{c}}
+1 h2c(uuuu)_{\tilde{b}\tilde{c}}^{\tilde{b}\tilde{c}}
+==================================
+
+==================================
+h3d(uoouoo)(p† q r u t† s†)
+----------------
+1 h3d(uoouoo)_{\tilde{a}\tilde{j}\tilde{i}}^{\tilde{j}\tilde{i}\tilde{a}}
+1 h3d(uoouoo)_{\tilde{a}\tilde{k}\tilde{i}}^{\tilde{k}\tilde{i}\tilde{a}}
+1 h3d(uoouoo)_{\tilde{a}\tilde{k}\tilde{j}}^{\tilde{k}\tilde{j}\tilde{a}}
+1 h3d(uoouoo)_{\tilde{b}\tilde{j}\tilde{i}}^{\tilde{j}\tilde{i}\tilde{b}}
+1 h3d(uoouoo)_{\tilde{b}\tilde{k}\tilde{i}}^{\tilde{k}\tilde{i}\tilde{b}}
+1 h3d(uoouoo)_{\tilde{b}\tilde{k}\tilde{j}}^{\tilde{k}\tilde{j}\tilde{b}}
+1 h3d(uoouoo)_{\tilde{c}\tilde{j}\tilde{i}}^{\tilde{j}\tilde{i}\tilde{c}}
+1 h3d(uoouoo)_{\tilde{c}\tilde{k}\tilde{i}}^{\tilde{k}\tilde{i}\tilde{c}}
+1 h3d(uoouoo)_{\tilde{c}\tilde{k}\tilde{j}}^{\tilde{k}\tilde{j}\tilde{c}}
+==================================
+
+==================================
+h3d(uuouuo)(p† q† r u t s†)
+----------------
+-1 h3d(uuouuo)_{\tilde{a}\tilde{b}\tilde{i}}^{\tilde{i}\tilde{a}\tilde{b}}
+-1 h3d(uuouuo)_{\tilde{a}\tilde{b}\tilde{j}}^{\tilde{j}\tilde{a}\tilde{b}}
+-1 h3d(uuouuo)_{\tilde{a}\tilde{b}\tilde{k}}^{\tilde{k}\tilde{a}\tilde{b}}
+-1 h3d(uuouuo)_{\tilde{a}\tilde{c}\tilde{i}}^{\tilde{i}\tilde{a}\tilde{c}}
+-1 h3d(uuouuo)_{\tilde{a}\tilde{c}\tilde{j}}^{\tilde{j}\tilde{a}\tilde{c}}
+-1 h3d(uuouuo)_{\tilde{a}\tilde{c}\tilde{k}}^{\tilde{k}\tilde{a}\tilde{c}}
+-1 h3d(uuouuo)_{\tilde{b}\tilde{c}\tilde{i}}^{\tilde{i}\tilde{b}\tilde{c}}
+-1 h3d(uuouuo)_{\tilde{b}\tilde{c}\tilde{j}}^{\tilde{j}\tilde{b}\tilde{c}}
+-1 h3d(uuouuo)_{\tilde{b}\tilde{c}\tilde{k}}^{\tilde{k}\tilde{b}\tilde{c}}
+==================================
+
