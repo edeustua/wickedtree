@@ -3,6 +3,8 @@ from fractions import Fraction
 
 from printing import get_utf8_tree
 
+import re
+
 OCCS_FIXED = "ijkl"
 UNOCCS_FIXED = "abcd"
 OCCS_FREE = "mno"
@@ -13,6 +15,7 @@ PRIORITIES = {
         OCCS_FREE + UNOCCS_FREE: 5,
         FULL_FREE: 1
         }
+
 
 class Symbol:
 
@@ -82,7 +85,7 @@ def contract(a, b):
             )
 
     res = res and (a.operator is not b.operator)
-    #res = res and (a.spin == b.spin)
+    res = res and (a.spin == b.spin)
 
     return res
 
@@ -108,12 +111,13 @@ class KroneckerDelta:
 
         prior_a = None
         prior_b = None
+
         for key, val in PRIORITIES.items():
 
-            if self.a.symbol.label in key:
+            if self.a.symbol.label[:1] in key:
                 prior_a = val
 
-            if self.b.symbol.label in key:
+            if self.b.symbol.label[:1] in key:
                 prior_b = val
 
         assert isinstance(prior_a, int) and isinstance(prior_b, int), "Priorities not found"
@@ -159,18 +163,39 @@ class KroneckerDelta:
 
 class MatrixOperator:
 
-    def __init__(self, symbol, lower, upper):
+    def __init__(self, symbol, lower, upper, op_lower, op_upper):
         self.symbol = symbol
         self.lower = lower
         self.upper = upper
+
+        # TODO clean this
+        self.op_lower = op_lower
+        self.op_upper = op_upper
+
+        self.lower_spin = []
+        self.upper_spin = []
+        for i, j in zip(lower, op_lower):
+            if j.spin == 'b':
+                self.lower_spin.append(f"\\tilde{{{i}}}")
+            else:
+                self.lower_spin.append(f"{i}")
+
+        for i, j in zip(upper, op_upper):
+            if j.spin == 'b':
+                self.upper_spin.append(f"\\tilde{{{i}}}")
+            else:
+                self.upper_spin.append(f"{i}")
+
 
 
     def __str__(self):
         op_str = self.symbol
         op_str += "_{"
-        op_str += "".join(self.lower)
+        #op_str += "".join(self.lower)
+        op_str += "".join(self.lower_spin)
         op_str += "}^{"
-        op_str += "".join(self.upper)
+        #op_str += "".join(self.upper)
+        op_str += "".join(self.upper_spin)
         op_str += "}"
         return op_str
 
@@ -278,7 +303,8 @@ class Operator:
                 if tmp is not None:
                     new_upper.append(tmp)
 
-        mo = MatrixOperator(self.symbol, new_lower, new_upper)
+        mo = MatrixOperator(self.symbol, new_lower, new_upper,
+                self.lower, self.upper)
         return mo
 
 
@@ -585,35 +611,46 @@ def collect_unique(p, terms):
     return uniq_set, uniq_set_weights
 
 
+IND = re.compile(r"([a-z])(\d*)([ab]?)([d†]?)")
+
 
 def parse_str(inds, operator=object()):
+    """Parse indices and create a string of ElementaryOperators"""
 
     string = []
     inds = inds.split()
 
     for idx in inds:
+
+        res = IND.search(idx)
+        assert res is not None, "Bad index"
+
+        ind, num, spin, dagger = res.groups()
+
         above = False
         below = False
 
-        if idx[:1] in OCCS_FIXED + UNOCCS_FIXED:
+        if ind in OCCS_FIXED + UNOCCS_FIXED:
             dummy = False
         else:
             dummy = True
 
-        if idx[0] in OCCS_FREE + OCCS_FIXED:
+        if ind in OCCS_FREE + OCCS_FIXED:
             below = True
 
-        elif idx[0] in UNOCCS_FREE + UNOCCS_FIXED:
+        elif ind in UNOCCS_FREE + UNOCCS_FIXED:
             above = True
 
-        if "†" in idx or ("d" in idx and len(idx) > 1):
-            string.append(ElementaryOperator(idx[:-1], True, operator,
-                above=above, below=below, dummy=dummy))
-        else:
-            string.append(ElementaryOperator(idx, False, operator,
-                above=above, below=below, dummy=dummy))
+        dagger = True if len(dagger) > 0 else False
+        ind = ind + num if len(num) > 0 else ind
+
+        spin = spin if len(spin) > 0 else 'a'
+
+        string.append(ElementaryOperator(ind,
+            dagger, operator,
+            spin=spin,
+            above=above,
+            below=below,
+            dummy=dummy))
 
     return string
-
-
-

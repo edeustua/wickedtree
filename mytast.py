@@ -74,8 +74,9 @@ def run(h):
     print("==================================")
     print(h)
 
-    bra = Operator("bra", "c b a k j i")
-    ket = Operator("ket", "id jd kd ad bd cd")
+    bra = Operator("bra", "a3 a2 a1 i3 i2 i1")
+    #ket = Operator("ket", "id jd kd ad bd dd")
+    ket = Operator("ket", "i1d i2d i4d a1d a4d a5d")
 
     fs = OperatorString(bra * h * ket)
 
@@ -112,9 +113,10 @@ def run(h):
 
     print('----------------')
     terms = list(zip(*new_eqs))
-    uniques = find_equiv(list(terms[1]))
-    for cnt, term in uniques:
-        print(int(math.sqrt(cnt)) * new_weights[term], term)
+    if len(terms) > 0:
+        uniques = find_equiv(list(terms[1]))
+        for cnt, term in uniques:
+            print(int(math.sqrt(cnt)) * new_weights[term], term)
 
     print("==================================\n")
 

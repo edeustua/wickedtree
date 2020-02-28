@@ -1,4 +1,4 @@
-import sys
+import pytest
 
 from bintree import Operator, OperatorString, \
         Node, wicks, collect_fully_contracted, \
@@ -79,7 +79,7 @@ h3(uuouuo)(p† q† r u t s†)
 -1 h3(uuouuo)_{bck}^{kbc}
 =================================="""]
 
-print(master)
+#print(master)
 
 def find_equiv(terms):
 
@@ -183,8 +183,11 @@ def run(h):
 
     return out_str
 
-def test_hbar():
+@pytest.mark.parametrize("test_input,expected",
+        list(zip(hs, master)))
+def test_hbar(test_input, expected):
+    out = run(test_input)
+    assert out == expected
 
-    for i, h in enumerate(hs):
-        out = run(h)
-        assert master[i] == out
+    #for i, h in enumerate(hs):
+    #    out = run(h)
