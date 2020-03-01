@@ -66,9 +66,15 @@ class ElementaryOperator:
 
     def __str__(self):
         if self.dagger:
-            res = "{}†".format(self.symbol.label)
+            if self.spin == 'b':
+                res = "{}~†".format(self.symbol.label)
+            else:
+                res = "{}†".format(self.symbol.label)
         else:
-            res = "{}".format(self.symbol.label)
+            if self.spin == 'b':
+                res = "{}~".format(self.symbol.label)
+            else:
+                res = "{}".format(self.symbol.label)
 
         return res
 
@@ -261,7 +267,8 @@ class Operator:
                 else:
                     self.upper.append(ind)
         else:
-            raise TypeError("operator is not clear for indexing")
+            raise TypeError("operator is not defined for indexing")
+
 
         if 't' not in self.symbol:
             self.upper = list(reversed(self.upper))
@@ -305,6 +312,7 @@ class Operator:
 
         mo = MatrixOperator(self.symbol, new_lower, new_upper,
                 self.lower, self.upper)
+
         return mo
 
 

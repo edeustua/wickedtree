@@ -85,8 +85,8 @@ hs = [
             weight=1),
         Operator("h3b(uooouo)", "pbd q r ud t sbd", typs='uooouo',
             weight=1),
-        Operator("h3b(uoooou)", "pbd q r ud td sb", typs='uoooou',
-            weight=Fraction(1,2)),
+        #Operator("h3b(uoooou)", "pbd q r ud td sb", typs='uoooou',
+        #    weight=Fraction(1,2)),
         Operator("h3b(ououoo)", "pb qd r u td sbd", typs='ououoo',
             weight=1),
         Operator("h3b(ouooou)", "pb qd r ud td sb", typs='ouooou',
@@ -118,8 +118,8 @@ hs = [
             weight=1),
         Operator("h3c(uuouou)", "pbd qbd r u tbd sb", typs='uuouou',
             weight=1),
-        Operator("h3c(uuoouu)", "pbd qbd r ud tb sb", typs='uuoouu',
-            weight=1),
+        #Operator("h3c(uuoouu)", "pbd qbd r ud tb sb", typs='uuoouu',
+        #    weight=1),
         Operator("h3c(uouuuo)", "pbd qb rd u tb sbd", typs='uouuuo',
             weight=1),
         #Operator("h3c(uouuou)", "pbd qb rd u tbd sb", typs='uouuou',
@@ -148,20 +148,27 @@ ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
 def run(h):
 
     # aaa
+    #bra = Operator("bra", "cb b a kb j i")
+    #ket = Operator("ket", "id jd kbd ad bd cbd")
     #bra = Operator("bra", "c b a k j i")
-    #ket = Operator("ket", "id jd kd ad bd cd")
+    #ket = Operator("ket", "id jd kd ad bd dd")
+    #bra = Operator("bra", "a3 a2 a1 i3 i2 i1")
+    #ket = Operator("ket", "i1d i2d i6d a1d a5d a6d")
+    bra = Operator("bra", "a3 a2 a1 i3 i2 i1")
+    ket = Operator("ket", "i1d i6d i2d a1d a5d a6d")
+    #ket = Operator("ket", "i1d i2d i3d a1d a2d a6d")
 
     # aab
-    bra = Operator("bra", "cb b a kb j i")
-    ket = Operator("ket", "id jd kbd ad bd cbd")
+    #bra = Operator("bra", "cb b a kb j i")
+    #ket = Operator("ket", "id jd kbd ad bd cbd")
 
     # abb
     #bra = Operator("bra", "cb bb a kb jb i")
     #ket = Operator("ket", "id jbd kbd ad bbd cbd")
 
     # bbb
-    bra = Operator("bra", "cb bb ab kb jb ib")
-    ket = Operator("ket", "ibd jbd kbd abd bbd cbd")
+    #bra = Operator("bra", "cb bb ab kb jb ib")
+    #ket = Operator("ket", "ibd jbd kbd abd bbd cbd")
 
     #bra = Operator("bra", "cb b a kb j i")
     #ket = Operator("ket", "id jd kbd ad bd cbd")
