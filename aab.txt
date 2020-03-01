@@ -13,13 +13,13 @@ h1a(uu)(p† q)
 ==================================
 
 ==================================
-h1b(oo)(p q†)
+h1b(oo)(p~ q~†)
 ----------------
 -1 h1b(oo)_{\tilde{k}}^{\tilde{k}}
 ==================================
 
 ==================================
-h1b(uu)(p† q)
+h1b(uu)(p~† q~)
 ----------------
 1 h1b(uu)_{\tilde{c}}^{\tilde{c}}
 ==================================
@@ -46,35 +46,35 @@ h2a(uuuu)(p† q† s r)
 ==================================
 
 ==================================
-h2b(oooo)(p q s† r†)
+h2b(oooo)(p q~ s~† r†)
 ----------------
 1 h2b(oooo)_{i\tilde{k}}^{i\tilde{k}}
 1 h2b(oooo)_{j\tilde{k}}^{j\tilde{k}}
 ==================================
 
 ==================================
-h2b(ouuo)(p q† s r†)
+h2b(ouuo)(p q~† s~ r†)
 ----------------
 -1 h2b(ouuo)_{i\tilde{c}}^{i\tilde{c}}
 -1 h2b(ouuo)_{j\tilde{c}}^{j\tilde{c}}
 ==================================
 
 ==================================
-h2b(uoou)(p† q s† r)
+h2b(uoou)(p† q~ s~† r)
 ----------------
 -1 h2b(uoou)_{a\tilde{k}}^{a\tilde{k}}
 -1 h2b(uoou)_{b\tilde{k}}^{b\tilde{k}}
 ==================================
 
 ==================================
-h2b(uuuu)(p† q† s r)
+h2b(uuuu)(p† q~† s~ r)
 ----------------
 1 h2b(uuuu)_{a\tilde{c}}^{a\tilde{c}}
 1 h2b(uuuu)_{b\tilde{c}}^{b\tilde{c}}
 ==================================
 
 ==================================
-h2c(ouou)(p q† s† r)
+h2c(ouou)(p~ q~† s~† r~)
 ----------------
 1 h2c(ouou)_{\tilde{k}\tilde{c}}^{\tilde{c}\tilde{k}}
 ==================================
@@ -94,7 +94,7 @@ h3a(uuouuo)(p† q† r u t s†)
 ==================================
 
 ==================================
-h3b(ououoo)(p q† r u t† s†)
+h3b(ououoo)(p~ q† r u t† s~†)
 ----------------
 -1 h3b(ououoo)_{\tilde{k}ai}^{\tilde{k}ia}
 -1 h3b(ououoo)_{\tilde{k}aj}^{\tilde{k}ja}
@@ -103,7 +103,7 @@ h3b(ououoo)(p q† r u t† s†)
 ==================================
 
 ==================================
-h3b(uuouou)(p† q† r u t† s)
+h3b(uuouou)(p~† q† r u t† s~)
 ----------------
 1 h3b(uuouou)_{\tilde{c}ai}^{\tilde{c}ia}
 1 h3b(uuouou)_{\tilde{c}aj}^{\tilde{c}ja}
@@ -112,14 +112,14 @@ h3b(uuouou)(p† q† r u t† s)
 ==================================
 
 ==================================
-h3c(uoooou)(p† q r u† t† s)
+h3c(uoooou)(p~† q~ r u† t~† s~)
 ----------------
 1 h3c(uoooou)_{\tilde{c}\tilde{k}i}^{\tilde{c}\tilde{k}i}
 1 h3c(uoooou)_{\tilde{c}\tilde{k}j}^{\tilde{c}\tilde{k}j}
 ==================================
 
 ==================================
-h3c(uouuuo)(p† q r† u t s†)
+h3c(uouuuo)(p~† q~ r† u t~ s~†)
 ----------------
 1 h3c(uouuuo)_{\tilde{c}\tilde{k}a}^{\tilde{k}\tilde{c}a}
 1 h3c(uouuuo)_{\tilde{c}\tilde{k}b}^{\tilde{k}\tilde{c}b}
