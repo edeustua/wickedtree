@@ -10,6 +10,16 @@ from fractions import Fraction
 
 import math
 
+def get_diff(bra, ket):
+
+    bra_inds = frozenset([ind.symbol.label for ind in bra.string])
+    ket_inds = frozenset([ind.symbol.label for ind in ket.string])
+
+    #print(len(bra_inds - ket_inds))
+
+    return len(bra_inds - ket_inds)
+
+
 
 def find_equiv(terms):
 
@@ -142,21 +152,70 @@ hs = [
 ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
         weight=Fraction(1,2))
 
+braket = (
+        (
+            Operator("bra", "a3 a2 a1 i3 i2 i1"),
+            Operator("ket", "i1d i2d i3d a4d a2d a3d")
+            ),
+        # Three body
+#        (
+#            Operator("bra", "a3 a2 a1 i3 i2 i1"),
+#            Operator("ket", "i4d i5d i3d a4d a2d a3d")
+#            ),
+#        (
+#            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+#            Operator("ket", "i4d i5d i3bd a4d a2d a3bd")
+#            ),
+#        (
+#            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+#            Operator("ket", "i4d i5bd i3bd a4d a2bd a3bd")
+#            ),
+#        (
+#            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
+#            Operator("ket", "i4bd i5bd i3bd a4bd a2bd a3bd")
+#            ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3b i2 i1"),
+        #    Operator("ket", "i1d i2d i4bd a1d a2d a3d")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3 i2b i1"),
+        #    Operator("ket", "i1d i2bd i4d a1d a2d a3d")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3b i2b i1"),
+        #    Operator("ket", "i1d i2bd i4bd a1d a2d a3d")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3 i2b i1b"),
+        #    Operator("ket", "i1bd i2bd i4d a1d a2d a3d")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3 i2 i1"),
+        #    Operator("ket", "i1d i2d i3d a1d a2d a4d")
+        #    ),
+        #(
+        #    Operator("bra", "ab3 a2 a1 i3 i2 i1"),
+        #    Operator("ket", "i1d i2d i3d a1d a2d a4bd")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3 i2 i1"),
+        #    Operator("ket", "i1d i2d i4d a1d a2d a3d")
+        #    ),
+        #(
+        #    Operator("bra", "a3 a2 a1 i3b i2 i1"),
+        #    Operator("ket", "i1d i2d i4bd a1d a2d a3d")
+        #    ),
+        )
 
 
 
-def run(h):
+
+def run(h, bra, ket, python_out):
 
     # aaa
     #bra = Operator("bra", "cb b a kb j i")
     #ket = Operator("ket", "id jd kbd ad bd cbd")
-    #bra = Operator("bra", "c b a k j i")
-    #ket = Operator("ket", "id jd kd ad bd dd")
-    #bra = Operator("bra", "a3 a2 a1 i3 i2 i1")
-    #ket = Operator("ket", "i1d i2d i6d a1d a5d a6d")
-    bra = Operator("bra", "a3 a2 a1 i3 i2 i1")
-    ket = Operator("ket", "i1d i6d i2d a1d a5d a6d")
-    #ket = Operator("ket", "i1d i2d i3d a1d a2d a6d")
 
     # aab
     #bra = Operator("bra", "cb b a kb j i")
@@ -216,10 +275,29 @@ def run(h):
         print('----------------')
         for cnt, term in uniques:
             print(int(math.sqrt(cnt)) * new_weights[term], term)
+            w = int(math.sqrt(cnt)) * new_weights[term]
+            if w < 0:
+                str_out = "-" + term.to_python()
+            else:
+                str_out = term.to_python()
+
+            python_out.append(str_out)
 
         print("==================================\n")
 
 
+
 #run(hs[0])
-for h in hs:
-    run(h)
+for idx, bk in enumerate(braket):
+    bra, ket = bk
+    diffs = get_diff(bra, ket)
+    str_out = str(idx) + " -- " + str(bra) + " " + str(ket) \
+            + " -- " + str(diffs)
+    print(str_out)
+    print("^"*len(str_out))
+    python_out = []
+    for h in hs:
+        run(h, bra, ket, python_out)
+
+    for line in python_out:
+        print(line + ",")

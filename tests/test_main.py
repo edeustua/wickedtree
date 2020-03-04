@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../")
+
 from bintree import Operator, OperatorString, \
         Node, wicks, collect_fully_contracted
 

@@ -180,6 +180,7 @@ class MatrixOperator:
 
         self.lower_spin = []
         self.upper_spin = []
+
         for i, j in zip(lower, op_lower):
             if j.spin == 'b':
                 self.lower_spin.append(f"\\tilde{{{i}}}")
@@ -191,6 +192,28 @@ class MatrixOperator:
                 self.upper_spin.append(f"\\tilde{{{i}}}")
             else:
                 self.upper_spin.append(f"{i}")
+
+    def to_python(self):
+        if (i := self.symbol.find("(")):
+            sym = self.symbol[:i]
+        else:
+            sym = self.symbol
+
+        # TODO: fix this
+        ind = sym[2:3]
+        rank = sym[1:2]
+        ni = ord(ind) - ord('a')
+        na = int(rank) - ni
+        spin = "a" * na + "b" * ni
+
+        out_str = "hbar.h_" + spin
+        out_str += "["
+        out_str += ",".join(self.lower)
+        out_str += " , "
+        out_str += ",".join(self.upper)
+        out_str += "]"
+
+        return out_str
 
 
 

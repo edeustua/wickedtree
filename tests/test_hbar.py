@@ -1,3 +1,8 @@
+import sys
+sys.path.append("../")
+print(sys.path)
+
+
 import pytest
 
 from bintree import Operator, OperatorString, \
