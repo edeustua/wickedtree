@@ -153,76 +153,11 @@ ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
         weight=Fraction(1,2))
 
 braket = (
-        #(
-        #    Operator("bra", "a3 a2 a1 i3 i2 i1"),
-        #    Operator("ket", "i1d i2d i3d a4d a2d a3d")
-        #    ),
         (
-            Operator("bra", "a3b a2 a1 i3b i2 i1"),
-            Operator("ket", "i1d i2d i4bd a1d a2d a3bd")
+            Operator("bra", "c b a k j i"),
+            #Operator("ket", "i1d i2d i3d a1d a2d a3d")
+            Operator("ket", "ad id bd jd cd kd")
             ),
-        #(
-        #    Operator("bra", "a3b a2 a1 i3b i2 i1"),
-        #    Operator("ket", "i1d i2d i3bd a1d a2d a3bd")
-        #    ),
-        #(
-        #    Operator("bra", "a3b a2 a1 i3b i2 i1"),
-        #    Operator("ket", "i4d i2d i3bd a4d a2d a3bd")
-        #    ),
-        #(
-        #    Operator("bra", "a3b a2 a1 i3b i2 i1"),
-        #    Operator("ket", "i4d i2d i3bd a1d a4d a3bd")
-        #    ),
-        # Three body
-        # Three body
-#        (
-#            Operator("bra", "a3 a2 a1 i3 i2 i1"),
-#            Operator("ket", "i4d i5d i3d a4d a2d a3d")
-#            ),
-#        (
-#            Operator("bra", "a3b a2 a1 i3b i2 i1"),
-#            Operator("ket", "i4d i5d i3bd a4d a2d a3bd")
-#            ),
-#        (
-#            Operator("bra", "a3b a2b a1 i3b i2b i1"),
-#            Operator("ket", "i4d i5bd i3bd a4d a2bd a3bd")
-#            ),
-#        (
-#            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
-#            Operator("ket", "i4bd i5bd i3bd a4bd a2bd a3bd")
-#            ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3b i2 i1"),
-        #    Operator("ket", "i1d i2d i4bd a1d a2d a3d")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3 i2b i1"),
-        #    Operator("ket", "i1d i2bd i4d a1d a2d a3d")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3b i2b i1"),
-        #    Operator("ket", "i1d i2bd i4bd a1d a2d a3d")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3 i2b i1b"),
-        #    Operator("ket", "i1bd i2bd i4d a1d a2d a3d")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3 i2 i1"),
-        #    Operator("ket", "i1d i2d i3d a1d a2d a4d")
-        #    ),
-        #(
-        #    Operator("bra", "ab3 a2 a1 i3 i2 i1"),
-        #    Operator("ket", "i1d i2d i3d a1d a2d a4bd")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3 i2 i1"),
-        #    Operator("ket", "i1d i2d i4d a1d a2d a3d")
-        #    ),
-        #(
-        #    Operator("bra", "a3 a2 a1 i3b i2 i1"),
-        #    Operator("ket", "i1d i2d i4bd a1d a2d a3d")
-        #    ),
         )
 
 
@@ -249,7 +184,8 @@ def run(h, bra, ket, python_out):
     #bra = Operator("bra", "cb b a kb j i")
     #ket = Operator("ket", "id jd kbd ad bd cbd")
 
-    fs = OperatorString(bra * h * ket)
+    #fs = OperatorString(bra * h * ket)
+    fs = OperatorString(bra * ket)
 
     root_node = Node(fs)
     wicks(root_node)
@@ -275,30 +211,32 @@ def run(h, bra, ket, python_out):
         if 0 in evs:
             continue
 
-        mv = h.eval_deltas(eq.deltas)
+        #mv = h.eval_deltas(eq.deltas)
+        mv = 1
         #equiv = new_eqs_weights[key]
         #print(equiv)
         #print(eq.deltas)
         #print(eq.sign * eq.weight, mv)
 
         new_eqs.append((eq.sign * eq.weight, mv))
-        new_weights[mv] = eq.sign * eq.weight
 
     terms = list(zip(*new_eqs))
     if len(terms) > 0:
-        uniques = find_equiv(list(terms[1]))
+        #uniques = find_equiv(list(terms[1]))
         print("==================================")
-        print(h)
         print('----------------')
-        for cnt, term in uniques:
-            print(int(math.sqrt(cnt)) * new_weights[term], term)
-            w = int(math.sqrt(cnt)) * new_weights[term]
-            if w < 0:
-                str_out = "-" + term.to_python()[1]
-            else:
-                str_out = term.to_python()[1]
+        #for cnt, term in uniques:
+        #    print(int(math.sqrt(cnt)) * new_weights[term])
+        #    w = int(math.sqrt(cnt)) * new_weights[term]
+        for term in new_eqs:
+            print(term[0])
+            #if w < 0:
+            #    str_out = "-" + term.to_python()
+            #else:
+            #    pass
+            #    #str_out = term.to_python()
 
-            python_out.append(str_out)
+            #python_out.append(str_out)
 
         print("==================================\n")
 
@@ -313,8 +251,9 @@ for idx, bk in enumerate(braket):
     print(str_out)
     print("^"*len(str_out))
     python_out = []
-    for h in hs:
-        run(h, bra, ket, python_out)
+    #for h in hs:
+    #    run(h, bra, ket, python_out)
+    run(hs[0], bra, ket, python_out)
 
     for line in python_out:
         print(line + ",")

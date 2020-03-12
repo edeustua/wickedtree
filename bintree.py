@@ -206,14 +206,82 @@ class MatrixOperator:
         na = int(rank) - ni
         spin = "a" * na + "b" * ni
 
-        out_str = "hbar.h_" + spin
+        sign = 1
+
+        out_lower = self.lower.copy()
+        out_upper = self.upper.copy()
+
+        if int(rank) == 3:
+
+
+            for ii, indx in enumerate(self.op_lower):
+
+                if ni == 1:
+                    if indx.spin == 'b':
+                        if ii == 2:
+                            break
+
+                        else:
+                            tmp = out_lower[2]
+                            out_lower[2] = out_lower[ii]
+                            out_lower[ii] = tmp
+
+                            sign *= -1
+                            break
+
+                elif ni == 2:
+                    if indx.spin == 'a':
+                        if ii == 0:
+                            break
+
+                        else:
+                            tmp = out_lower[0]
+                            out_lower[0] = out_lower[ii]
+                            out_lower[ii] = tmp
+
+                            sign *= -1
+                            break
+
+            for ii, indx in enumerate(self.op_upper):
+
+                if ni == 1:
+                    if indx.spin == 'b':
+                        if ii == 2:
+                            break
+
+                        else:
+                            tmp = out_upper[2]
+                            out_upper[2] = out_upper[ii]
+                            out_upper[ii] = tmp
+
+                            sign *= -1
+                            break
+
+                elif ni == 2:
+                    if indx.spin == 'a':
+                        if ii == 0:
+                            break
+
+                        else:
+                            tmp = out_upper[0]
+                            out_upper[0] = out_upper[ii]
+                            out_upper[ii] = tmp
+
+                            sign *= -1
+                            break
+
+
+
+
+        out_str = "-" if sign < 0 else "+"
+        out_str += "hbar.h_" + spin
         out_str += "["
-        out_str += ",".join(self.lower)
+        out_str += ",".join(out_lower)
         out_str += " , "
-        out_str += ",".join(self.upper)
+        out_str += ",".join(out_upper)
         out_str += "]"
 
-        return out_str
+        return (int(rank), out_str)
 
 
 
