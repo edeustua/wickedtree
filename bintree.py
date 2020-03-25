@@ -194,7 +194,8 @@ class MatrixOperator:
                 self.upper_spin.append(f"{i}")
 
     def to_python(self):
-        if (i := self.symbol.find("(")):
+        i = self.symbol.find("(")
+        if i:
             sym = self.symbol[:i]
         else:
             sym = self.symbol

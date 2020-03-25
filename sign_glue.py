@@ -10,6 +10,10 @@ from fractions import Fraction
 
 import math
 
+import re
+
+IND = re.compile(r"[ai](\d+)")
+
 def get_diff(bra, ket):
 
     bra_inds = frozenset([ind.symbol.label for ind in bra.string])
@@ -48,8 +52,6 @@ def find_equiv(terms):
         tmp_terms = new_terms[:]
 
     return uniques
-
-
 
 
 
@@ -142,72 +144,28 @@ hs = [
             weight=Fraction(1,2)),
         ]
 
-ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
-        weight=Fraction(1,2))
-
-braket = (
-        (
-            Operator("bra", "a3 a2 a1 i3 i2 i1"),
-            Operator("ket", "i1d i2d i3d a1d a2d a3d")
-            ),
-        (
-            Operator("bra", "a3b a2 a1 i3b i2 i1"),
-            Operator("ket", "i1d i2d i3bd a1d a2d a3bd")
-            ),
-        (
-            Operator("bra", "a3b a2b a1 i3b i2b i1"),
-            Operator("ket", "i1d i2bd i3bd a1d a2bd a3bd")
-            ),
-        (
-            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
-            Operator("ket", "i1bd i2bd i3bd a1bd a2bd a3bd")
-            ),
-        )
 
 
 
 
-def run(h, bra, ket, python_out):
 
-    # aaa
-    #bra = Operator("bra", "cb b a kb j i")
-    #ket = Operator("ket", "id jd kbd ad bd cbd")
-
-    # aab
-    #bra = Operator("bra", "cb b a kb j i")
-    #ket = Operator("ket", "id jd kbd ad bd cbd")
-
-    # abb
-    #bra = Operator("bra", "cb bb a kb jb i")
-    #ket = Operator("ket", "id jbd kbd ad bbd cbd")
-
-    # bbb
-    #bra = Operator("bra", "cb bb ab kb jb ib")
-    #ket = Operator("ket", "ibd jbd kbd abd bbd cbd")
-
-    #bra = Operator("bra", "cb b a kb j i")
-    #ket = Operator("ket", "id jd kbd ad bd cbd")
+def run(h, bra, ket):
 
     fs = OperatorString(bra * h * ket)
 
     root_node = Node(fs)
     wicks(root_node)
 
-    # Pretty Print
-    #lines, _, _, _ = get_utf8_tree(root_node)
-    #for line in lines:
-    #    print(line)
-
-    #print(root_node.right.right.right.right.left.data)
-
     full = collect_fully_contracted(root_node)
 
-    #print(full)
-    #sys.exit()
     new_eqs = []
     new_weights = {}
+
+    python_out = []
+
     if len(full) == 0:
         return
+
     for i, eq in enumerate(full):
         evs = [x.evaluate() for x in eq.deltas]
 
@@ -215,10 +173,6 @@ def run(h, bra, ket, python_out):
             continue
 
         mv = h.eval_deltas(eq.deltas)
-        #equiv = new_eqs_weights[key]
-        #print(equiv)
-        #print(eq.deltas)
-        #print(eq.sign * eq.weight, mv)
 
         new_eqs.append((eq.sign * eq.weight, mv))
         new_weights[mv] = eq.sign * eq.weight
@@ -226,34 +180,78 @@ def run(h, bra, ket, python_out):
     terms = list(zip(*new_eqs))
     if len(terms) > 0:
         uniques = find_equiv(list(terms[1]))
-        print("==================================")
-        print(h)
-        print('----------------')
+        #print("==================================")
+        #print(h)
+        #print('----------------')
         for cnt, term in uniques:
-            print(int(math.sqrt(cnt)) * new_weights[term], term)
+            #print(int(math.sqrt(cnt)) * new_weights[term], term)
             w = int(math.sqrt(cnt)) * new_weights[term]
+            p = term.to_python()
             if w < 0:
-                str_out = "-" + term.to_python()[1]
+                str_out = "-" + p[1]
             else:
-                str_out = term.to_python()[1]
+                str_out = p[1]
 
-            python_out.append(str_out)
+            python_out.append((p[0], str_out))
 
-        print("==================================\n")
+        #print("==================================\n")
+
+    return python_out
 
 
 
-#run(hs[0])
-for idx, bk in enumerate(braket):
-    bra, ket = bk
-    diffs = get_diff(bra, ket)
-    str_out = str(idx) + " -- " + str(bra) + " " + str(ket) \
-            + " -- " + str(diffs)
-    print(str_out)
-    print("^"*len(str_out))
+def prepare_strings(nel, det, dagger):
+
+    op = []
+    if not dagger:
+        det = reversed(det)
+    for ind in det:
+        inds = (ind - 1) // 2
+        if ind > nel:
+            if ind % 2 == 1:
+                op.append(f"a{inds}")
+            else:
+                op.append(f"a{inds}b")
+        else:
+            if ind % 2 == 1:
+                op.append(f"i{inds}")
+            else:
+                op.append(f"i{inds}b")
+
+    if dagger:
+        op = [f"{x}d" for x in op]
+
+    return op
+
+def split_elements(eqs):
+
+    h_elements = {
+            1: [],
+            2: [],
+            3: []
+            }
+
+    for eq in eqs:
+        drop_ai = IND.sub(r'\1', eq[1])
+        h_elements[eq[0]].append(drop_ai)
+
+    return h_elements
+
+
+def compute_element(nel, bra, ket):
+
+    bra_op = prepare_strings(nel, bra, False)
+    ket_op = prepare_strings(nel, ket, True)
+
+    bra_op = Operator("bra", " ".join(bra_op))
+    ket_op = Operator("ket", " ".join(ket_op))
+
     python_out = []
     for h in hs:
-        run(h, bra, ket, python_out)
+        eqs = run(h, bra_op, ket_op)
+        if eqs:
+            python_out.extend(eqs)
 
-    for line in python_out:
-        print(line + ",")
+    h_elements = split_elements(python_out)
+
+    return h_elements
