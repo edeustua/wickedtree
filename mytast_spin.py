@@ -148,22 +148,157 @@ ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
 braket = (
         (
             Operator("bra", "a3 a2 a1 i3 i2 i1"),
-            Operator("ket", "i1d i2d i3d a1d a2d a3d")
+            Operator("ket", "i1d i2d i4d a1d a5d a6d")
+            ),
+        (
+            Operator("bra", "a3 a2 a1 i3 i2 i1"),
+            Operator("ket", "i1d i2d i4bd a1d a5d a6bd")
+            ),
+        # ----
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4bd i3bd a1d a5bd a6bd")
             ),
         (
             Operator("bra", "a3b a2 a1 i3b i2 i1"),
-            Operator("ket", "i1d i2d i3bd a1d a2d a3bd")
+            Operator("ket", "i1d i4d i3bd a1d a5d a6bd")
+            ),
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4bd i3bd a5d a6bd a3bd")
+            ),
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i2d i4d a1d a5d a6d")
+            ),
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4d i3bd a5d a2d a6bd")
+            ),
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4d i3bd a5d a6d a3bd")
+            ),
+
+        # ----
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i1d i2bd i4bd a1d a5bd a6bd")
             ),
         (
             Operator("bra", "a3b a2b a1 i3b i2b i1"),
-            Operator("ket", "i1d i2bd i3bd a1d a2bd a3bd")
+            Operator("ket", "i1d i4d i3bd a1d a5d a6bd")
+            ),
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4bd i2bd i3bd a5bd a2bd a6bd")
+            ),
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i1d i2bd i4bd a5d a2bd a6bd")
+            ),
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i1d i4d i3bd a5d a6d a3bd")
+            ),
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4d i2bd i3bd a5d a2bd a6bd")
+            ),
+        # ----
+        (
+            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
+            Operator("ket", "i4d i2bd i3bd a5d a2bd a6bd")
             ),
         (
             Operator("bra", "a3b a2b a1b i3b i2b i1b"),
-            Operator("ket", "i1bd i2bd i3bd a1bd a2bd a3bd")
+            Operator("ket", "i1bd i2bd i4bd a1bd a5bd a6bd")
             ),
-        )
+        # ----
+        (
+            Operator("bra", "a3 a2 a1 i3 i2 i1"),
+            Operator("ket", "i1d i4d i5d a1d a2d a6d")
+            ),
+        (
+            Operator("bra", "a3 a2 a1 i3 i2 i1"),
+            Operator("ket", "i1d i4d i5bd a1d a2d a6bd")
+            ),
+        # ----
+        # 19
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i4d i5d i3bd a1d a6d a3bd")
+            ),
+        # 20
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4d i5bd a1d a6d a3bd")
+            ),
+        # 21
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4d i5d a1d a2d a6d")
+            ),
+        # 22
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i4d i5bd i3bd a1d a6bd a3bd")
+            ),
+        # 23
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4d i5bd a1d a2d a6bd")
+            ),
+        # 24
+        (
+            Operator("bra", "a3b a2 a1 i3b i2 i1"),
+            Operator("ket", "i1d i4bd i5bd a1d a6bd a3bd")
+            ),
+        # =------
+        # 25
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4d i2bd i5bd a6d a2bd a3bd")
+            ),
+        # 26
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4d i5d i3bd a1d a6d a3bd")
+            ),
+        # 27
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4d i2bd i5bd a1d a2bd a6bd")
+            ),
+        # 28
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i4bd i2bd i5bd a6bd a2bd a3bd")
+            ),
+        # 29
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i1d i4d i5bd a1d a6d a3bd")
+            ),
+        # 30
+        (
+            Operator("bra", "a3b a2b a1 i3b i2b i1"),
+            Operator("ket", "i1d i4bd i5bd a1d a2bd a6bd")
+            ),
 
+        # ---
+        # 31
+        (
+            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
+            Operator("ket", "i4d i2bd i5bd a6d a2bd a3bd")
+            ),
+        # 31
+        (
+            Operator("bra", "a3b a2b a1b i3b i2b i1b"),
+            Operator("ket", "i1bd i4bd i5bd a1bd a2bd a6bd")
+            ),
+
+        )
 
 
 
@@ -247,13 +382,13 @@ def run(h, bra, ket, python_out):
 for idx, bk in enumerate(braket):
     bra, ket = bk
     diffs = get_diff(bra, ket)
-    str_out = str(idx) + " -- " + str(bra) + " " + str(ket) \
+    str_out = "\n\n" + str(idx + 1) + " -- " + str(bra) + " " + str(ket) \
             + " -- " + str(diffs)
     print(str_out)
     print("^"*len(str_out))
     python_out = []
-    for h in hs:
+    for h in hs[16:]:
         run(h, bra, ket, python_out)
 
-    for line in python_out:
-        print(line + ",")
+    #for line in python_out:
+    #    print(line + ",")
