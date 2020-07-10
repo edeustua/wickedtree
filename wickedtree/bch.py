@@ -1,21 +1,15 @@
-import sys
-
+from fractions import Fraction
 import itertools as it
 
 import click
 
-from bintree import (
+from wickedtree.bintree import (
         OCCS_FREE, UNOCCS_FREE,
         OCCS_FIXED, UNOCCS_FIXED,
         FULL_FREE
         )
-
-from bintree import Operator, Node, wicks, \
-        collect_fully_contracted, collect_unique
-
-from operators import gen_fermi_onebody, gen_fermi_twobody
-
-from fractions import Fraction
+from wickedtree.bintree import Operator, Node, wicks, collect_fully_contracted, collect_unique
+from wickedtree.operators import gen_fermi_onebody, gen_fermi_twobody
 
 
 def get_single_operator(label, rank, spin):
@@ -325,14 +319,11 @@ def bch_loop(order):
             print("----------------------\n")
 
 
-
-
-
-
 @click.command()
 @click.argument('order', nargs=1, type=int)
 def main(order):
     bch_loop(order)
+
 
 if __name__ == "__main__":
     main()

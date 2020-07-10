@@ -1,0 +1,6 @@
+include LICENSE
+include setup.cfg
+include MANIFEST.in
+
+include versioneer.py
+include wickedtree/_version.py

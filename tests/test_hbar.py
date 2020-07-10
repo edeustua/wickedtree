@@ -1,22 +1,17 @@
-import sys
-sys.path.append("../")
-print(sys.path)
-
-
 import pytest
 
-from bintree import Operator, OperatorString, \
-        Node, wicks, collect_fully_contracted, \
-        Symbol
+from wickedtree.bintree import Operator, OperatorString, \
+    Node, wicks, collect_fully_contracted, \
+    Symbol
 
-from printing import get_utf8_tree
+from wickedtree.utils.printing import get_utf8_tree
 
 from fractions import Fraction
 
 import math
 
 
-master = ["""==================================
+reference = ["""==================================
 h1(oo)(p q†)
 ----------------
 -1 h1(oo)_{i}^{i}
@@ -84,8 +79,6 @@ h3(uuouuo)(p† q† r u t s†)
 -1 h3(uuouuo)_{bck}^{kbc}
 =================================="""]
 
-#print(master)
-
 def find_equiv(terms):
 
     tmp_terms = terms.copy()
@@ -115,9 +108,6 @@ def find_equiv(terms):
     return uniques
 
 
-
-
-
 hs = [
         Operator("h1(oo)", "p qd", typs='oo'),
         Operator("h1(uu)", "pd q", typs='uu'),
@@ -143,11 +133,7 @@ ht = Operator("h3(ouuouu)", "p qd rd ud t s", typs='ouuouu',
         weight=Fraction(1,2))
 
 
-
-
 def run(h):
-    #print("==================================")
-    #print(h)
     out_str = "==================================\n"
     out_str += str(h) + "\n"
 
@@ -174,25 +160,17 @@ def run(h):
         new_eqs.append((eq.sign * eq.weight, mv))
         new_weights[mv] = eq.sign * eq.weight
 
-    #print('----------------')
     out_str += '----------------\n'
     terms = list(zip(*new_eqs))
     uniques = find_equiv(list(terms[1]))
     for cnt, term in uniques:
-        #print(int(math.sqrt(cnt)) * new_weights[term], term)
-        out_str += str(int(math.sqrt(cnt)) * new_weights[term]) + \
-				" " + str(term) + "\n"
+        out_str += str(int(math.sqrt(cnt)) * new_weights[term]) + " " + str(term) + "\n"
 
-    #print("==================================\n")
     out_str += "=================================="
 
     return out_str
 
-@pytest.mark.parametrize("test_input,expected",
-        list(zip(hs, master)))
+@pytest.mark.parametrize("test_input,expected", list(zip(hs, reference)))
 def test_hbar(test_input, expected):
     out = run(test_input)
     assert out == expected
-
-    #for i, h in enumerate(hs):
-    #    out = run(h)
