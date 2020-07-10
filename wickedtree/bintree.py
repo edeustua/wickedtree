@@ -1,7 +1,7 @@
 import pdb
 from fractions import Fraction
 
-from printing import get_utf8_tree
+from .printing import get_utf8_tree
 
 import re
 

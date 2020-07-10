@@ -1,123 +1,89 @@
-from bintree import Operator, OperatorString, \
-        Node, wicks, collect_fully_contracted, \
-        collect_unique
+from .bintree import Operator, OperatorString, \
+        Node, wicks, collect_fully_contracted
 
 from fractions import Fraction
 
-def vt2_2():
+import math
 
-    p = Operator("p", "j b i a")
-    v = Operator("v", "pd qd s r",
-            typs="uoou",
-            weight=Fraction(1,2))
-    t = Operator("t", "ed md fd nd", weight=Fraction(1,2))
+def find_equiv(terms):
 
-    full_string = OperatorString(p.string + v.string + t.string,
-            weight=Fraction(1/4))
+    tmp_terms = terms.copy()
+    new_terms = terms.copy()
 
-    return p, v, t, full_string
+    uniques = []
+    while True:
 
-def vt2_2p():
+        pivot_l = set(tmp_terms[0].lower)
+        pivot_u = set(tmp_terms[0].upper)
 
-    p = Operator("p", "j b i a")
-    v = Operator("v", "pd qd s r", weight=Fraction(1,2))
-    t = Operator("t", "ed md fd nd", weight=Fraction(1,2))
+        cnt = 0
+        for term in tmp_terms:
+            if pivot_l == set(term.lower) and \
+                    pivot_u == set(term.upper):
+                new_terms.remove(term)
+                cnt += 1
 
-    v.string[0].above = True
-    v.string[1].above = True
-    v.string[2].above = True
-    v.string[3].above = True
-
-    full_string = OperatorString(p.string + v.string + t.string,
-            weight=Fraction(1/4))
-
-    return p, v, t, full_string
-
-def zc1():
-    z = Operator("z", "p q")
-    t = Operator("t", "ad id")
-
-    z.string[0].below = True
-    z.string[1].above = True
-
-    full_string = OperatorString(z.string + t.string)
-
-    return None, full_string
-
-def vc1():
-    v = Operator("v", "p q r s")
-    t = Operator("t", "ad id")
-
-    v.string[0].below = True
-    v.string[1].below = True
-    v.string[2].above = True
-    v.string[3].above = True
-
-    full_string = OperatorString(v.string + t.string)
-
-    return None, full_string
-
-# Testing
-# -------
-p, v, t, full_string = vt2_2()
-#p, v, t, full_string = vt2_2p()
-#p, v, t, full_string = vt2_2()
-#p, full_string = vc1()
-#p, full_string = zc1()
-print(full_string)
-
-# Initialize tree
-tree = Node(full_string)
-
-# Contract string
-wicks(tree)
-
-full = collect_fully_contracted(tree)
+        uniques.append((cnt, tmp_terms[0]))
 
 
-# Pretty Print
-#lines, _, _, _ = get_utf8_tree(root_node)
-#for line in lines:
-#    print(line)
+        if len(new_terms) == 0:
+            break
 
-#sys.exit()
+        tmp_terms = new_terms[:]
 
-print("==================================\n\n")
+    return uniques
 
-print(v)
-for i, eq in enumerate(full):
-    evs = [kd.evaluate() for kd in eq.deltas]
+def collect_unique(fully_contracted, operator):
 
-    #print(eq[1])
-    if 0 in evs:
-        continue
+    unique_eqs = []
+    unique_weights = {}
 
-    #print(eq[1])
-    mv = v.eval_deltas(eq.deltas)
-    mt = t.eval_deltas(eq.deltas)
-    print(eq.sign * eq.weight, mv, mt)
+    if len(fully_contracted) == 0:
+        return
 
-    #print(i, eq)
+    for i, eq in enumerate(fully_contracted):
 
-print("\nUniques only")
-print("-------------")
+        evs = [x.evaluate() for x in eq.deltas]
 
-new_eqs, new_eqs_weights = collect_unique(p, full)
-for key, eqs in new_eqs.items():
+        if 0 in evs:
+            continue
 
-    eq = eqs[0]
+        mv = operator.eval_deltas(eq.deltas)
 
-    evs = [kd.evaluate() for kd in eq.deltas]
+        unique_eqs.append((eq.sign * eq.weight, mv))
+        unique_weights[mv] = eq.sign * eq.weight
 
-    #print(eq[1])
-    if 0 in evs:
-        continue
+    unique_eqs = list(zip(*unique_eqs))
 
-    #print(eq[1])
-    mv = v.eval_deltas(eq.deltas)
-    mt = t.eval_deltas(eq.deltas)
-    equiv = new_eqs_weights[key]
-    print(equiv)
-    print(eq.sign * eq.weight * equiv, mv, mt)
+    if len(unique_eqs) > 0:
+        uniques = find_equiv(list(unique_eqs[1]))
+
+        res = []
+
+        for cnt, term in uniques:
+            w = int(math.sqrt(cnt)) * unique_weights[term]
+            res.append((operator, w, term))
+
+        return res
+
+    else:
+        return None
+
+
+def run(operator, bra, ket):
+    """
+    Obtain all fully contracted expressions.
+    """
+
+    full_string = OperatorString(bra * operator * ket)
+    root_node = Node(full_string)
+
+    wicks(root_node)
+    fully_contracted = collect_fully_contracted(root_node)
+
+    exps = collect_unique(fully_contracted, operator)
+
+    return exps
+
 
 
