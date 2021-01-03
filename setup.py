@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+import versioneer
+
 setup(
     name='wickedtree',
-    version='0.1',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Implementation of Wick's theorem using a binary tree",
     author='J. Emiliano Deustua',
     author_email='edeustua@gmail.com',
@@ -18,4 +21,3 @@ setup(
     },
     packages=find_packages(),
 )
-
