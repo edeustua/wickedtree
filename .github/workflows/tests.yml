@@ -42,5 +42,6 @@ jobs:
         pwd
         pip list
         python -m pip list
+        python -c "import wickedtree"
         python -c "import wickedtree.utils.printing"
         pytest
