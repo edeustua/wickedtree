@@ -1,14 +1,8 @@
-import sys
-
 from bintree import Operator, OperatorString, \
-        Node, wicks, collect_fully_contracted, \
-        Symbol
-
-from printing import get_utf8_tree
+        Node, wicks, collect_fully_contracted
 
 from fractions import Fraction
 
-import math
 
 def get_diff(bra, ket):
 

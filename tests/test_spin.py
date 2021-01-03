@@ -1,15 +1,11 @@
-import sys
-sys.path.append("../")
+from fractions import Fraction
+import math
 
 import pytest
 
-from bintree import Operator, OperatorString, \
+from wickedtree.bintree import Operator, OperatorString, \
         Node, wicks, collect_fully_contracted, \
         Symbol
-
-from fractions import Fraction
-
-import math
 
 
 def find_equiv(terms):
@@ -32,16 +28,12 @@ def find_equiv(terms):
 
         uniques.append((cnt, tmp_terms[0]))
 
-
         if len(new_terms) == 0:
             break
 
         tmp_terms = new_terms[:]
 
     return uniques
-
-
-
 
 
 hs = [
@@ -145,7 +137,7 @@ inputs = {
             )
         }
 
-outputs = ("aaa.txt", "aab.txt", "abb.txt" ,"bbb.txt")
+outputs = ("aaa.txt", "aab.txt", "abb.txt", "bbb.txt")
 
 
 def run(bra, ket, h):
@@ -192,8 +184,8 @@ def run(bra, ket, h):
 
     return str_out
 
-@pytest.mark.parametrize("test_input, expected",
-        list(zip(inputs.items(), outputs)))
+
+@pytest.mark.parametrize("test_input, expected", list(zip(inputs.items(), outputs)))
 def test_spin(test_input, expected):
 
     # get input data

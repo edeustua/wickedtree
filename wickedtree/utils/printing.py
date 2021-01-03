@@ -54,6 +54,7 @@ def get_utf8_tree(node):
     lines = [first_line, second_line] + [a + u * ' ' + b for a, b in zipped_lines]
     return lines, n + m + u, max(p, q) + 2, n + u // 2
 
+
 def print_tree(node, space=0, char=""):
     pad = 1
 
